@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>kernel2cloud — Distributed GPU Cloud</title>
+<meta name="description" content="Rent NVIDIA RTX PRO 6000 Blackwell GPUs from racks at many small sites, sold as one pool — or host a rack.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Clarity+City:ital,wght@0,100..900;1,100..900&family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff;
+  --bg-2: #f8f7fb;
+  --bg-3: #f2f0f7;
+  --line: #e8e6ef;
+  --line-2: #d9d6e3;
+  --ink: #15121f;
+  --ink-2: #4d4a5c;
+  --ink-3: #8b889a;
+  --brand: #7b3cff;
+  --brand-2: #5d22e0;
+  --brand-soft: #f3edff;
+  --brand-line: #ddd0ff;
+  --mint: #12b886;
+  --mint-soft: #e6f8f1;
+  --sans: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --display: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+  --max: 1200px;
+  --r: 14px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+body { font-family: var(--sans); background: var(--bg); color: var(--ink); line-height: 1.6; font-size: 16px; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+svg { display: block; }
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+h1, h2, h3 { font-family: var(--display); letter-spacing: -.03em; }
+h3 { font-size: 1.12rem; font-weight: 600; letter-spacing: -.015em; }
+
+/* ---------- announcement + header ---------- */
+.announce { background: var(--brand-soft); border-bottom: 1px solid var(--brand-line); text-align: center; font-size: .88rem; padding: 9px 16px; color: var(--brand-2); }
+.announce a { font-weight: 600; }
+.announce a:hover { text-decoration: underline; }
+header { position: sticky; top: 0; z-index: 50; background: #fff; border-bottom: 1px solid var(--line); }
+.nav { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+.logo { display: flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 700; font-size: 1.18rem; letter-spacing: -.03em; }
+.logo svg { width: 26px; height: 26px; }
+.logo b { color: var(--brand); font-weight: 400; }
+nav ul { display: flex; gap: 4px; list-style: none; align-items: center; }
+nav a { padding: 8px 12px; border-radius: 8px; font-size: .94rem; font-weight: 500; color: var(--ink-2); transition: color .15s, background .15s; }
+nav a:hover, nav a.active { color: var(--ink); background: var(--bg-3); }
+nav .btn { margin-left: 10px; color: #fff; }
+nav .btn:hover { color: #fff; background: var(--brand-2); }
+.menu-btn { display: none; order: 2; background: #fff; border: 1px solid var(--line); border-radius: 10px; width: 40px; height: 40px; cursor: pointer; color: var(--ink); font-size: 1.1rem; }
+
+/* ---------- buttons, tags ---------- */
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; border-radius: 10px; font-weight: 600; font-size: .95rem; background: var(--brand); color: #fff; border: 1px solid var(--brand); cursor: pointer; transition: background .15s, border-color .15s; }
+.btn:hover { background: var(--brand-2); border-color: var(--brand-2); }
+.btn-line { background: #fff; color: var(--ink); border-color: var(--line-2); }
+.btn-line:hover { background: var(--bg-2); border-color: var(--ink-3); }
+.btn .arrow { transition: transform .15s; }
+.btn:hover .arrow { transform: translateX(3px); }
+.pill { display: inline-flex; align-items: center; gap: 8px; font-size: .82rem; font-weight: 500; color: var(--ink-2); padding: 5px 12px 5px 6px; border: 1px solid var(--line); border-radius: 999px; background: #fff; }
+.pill em { font-style: normal; font-size: .72rem; font-weight: 600; color: var(--brand-2); background: var(--brand-soft); padding: 2px 8px; border-radius: 999px; }
+.eyebrow { font-family: var(--mono); font-size: .76rem; letter-spacing: .08em; text-transform: uppercase; color: var(--brand); font-weight: 500; }
+.accent { color: var(--brand); }
+h1 .accent, h2 .accent { font-weight: 300; }
+
+/* ---------- sections ---------- */
+section { padding: 112px 0; position: relative; }
+.alt { background: var(--bg-2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.sec-head { max-width: 720px; margin-bottom: 52px; }
+.sec-head h2 { font-size: clamp(2.3rem, 5vw, 3.8rem); line-height: 1; font-weight: 700; letter-spacing: -.025em; margin: 14px 0 16px; }
+.sec-head p { color: var(--ink-2); font-size: 1.2rem; font-weight: 300; }
+.dots { background-image: radial-gradient(var(--line-2) 1px, transparent 1.2px); background-size: 18px 18px; }
+
+/* ---------- hero ---------- */
+.hero { padding: 88px 0 0; text-align: center; overflow: hidden; }
+.hero::before { content: ""; position: absolute; inset: 0 0 auto; height: 640px; z-index: -1;
+  background: radial-gradient(900px 420px at 50% -10%, #efe7ff, transparent 70%); }
+.hero h1 { font-size: clamp(2.6rem, 6.4vw, 5.2rem); line-height: 1; font-weight: 700; letter-spacing: -.02em; max-width: 960px; margin: 26px auto 22px; }
+.hero .lead { font-size: 1.3rem; font-weight: 300; color: var(--ink-2); max-width: 640px; margin: 0 auto; }
+.hero-cta { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+.hero-cta .btn { padding: 13px 24px; font-size: 1rem; }
+
+.stage { position: relative; margin: 64px auto 0; max-width: 1100px; border: 1px solid var(--line); border-bottom: 0; border-radius: 22px 22px 0 0; background: #fff; overflow: hidden; }
+.stage-bar { display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px; border-bottom: 1px solid var(--line); background: var(--bg-2); font-family: var(--mono); font-size: .76rem; color: var(--ink-3); }
+.stage-bar i { width: 10px; height: 10px; border-radius: 50%; background: var(--line-2); }
+.stage-bar span { margin-left: 10px; }
+.stage-bar .live { margin-left: auto; color: var(--mint); display: inline-flex; align-items: center; gap: 6px; }
+.stage-bar .live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--mint); animation: blink 1.6s ease-in-out infinite; }
+@keyframes blink { 50% { opacity: .3; } }
+.stage-body { display: grid; grid-template-columns: 250px 1fr 250px; min-height: 520px; }
+.stage-side { padding: 22px 18px; text-align: left; display: flex; flex-direction: column; gap: 12px; background: #fff; }
+.stage-side.l { border-right: 1px solid var(--line); }
+.stage-side.r { border-left: 1px solid var(--line); }
+.stage-side .lbl { font-family: var(--mono); font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); }
+.mini { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: #fff; font-size: .85rem; display: grid; gap: 4px; }
+.mini .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.mini b { font-family: var(--display); font-weight: 700; font-size: 1.05rem; letter-spacing: -.02em; }
+.mini small { color: var(--ink-3); font-family: var(--mono); font-size: .72rem; }
+.ok { display: inline-flex; align-items: center; gap: 6px; color: var(--mint); font-family: var(--mono); font-size: .72rem; }
+.ok::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--mint); }
+.bars { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; margin-top: 6px; }
+.bars span { height: 26px; border-radius: 4px; background: var(--brand-soft); position: relative; overflow: hidden; }
+.bars span::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: var(--h, 70%); background: var(--brand); border-radius: 4px; opacity: .85; }
+.spark { width: 100%; height: 38px; margin-top: 6px; }
+.globe-box { position: relative; display: flex; align-items: center; justify-content: center; padding: 10px; min-width: 0; }
+.globe-wrap { position: relative; width: 100%; max-width: 500px; aspect-ratio: 1; }
+.globe-wrap svg.fallback, .globe-wrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.globe-wrap canvas { opacity: 0; cursor: grab; touch-action: pan-y; }
+.globe-wrap canvas.ready { opacity: 1; }
+.globe-wrap canvas.ready + svg.fallback { display: none; }
+.globe-tag { position: absolute; font-family: var(--mono); font-size: .72rem; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; color: var(--ink-2); box-shadow: 0 6px 16px -10px rgba(21,18,31,.25); animation: float 6s ease-in-out infinite; white-space: nowrap; }
+.globe-tag b { color: var(--ink); font-weight: 500; }
+.globe-tag.t1 { top: 12%; left: 4%; }
+.globe-tag.t2 { top: 48%; right: 2%; animation-delay: -2s; }
+.globe-tag.t3 { bottom: 9%; left: 12%; animation-delay: -4s; }
+@keyframes float { 50% { transform: translateY(-8px); } }
+
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); }
+.stat { padding: 22px 24px; text-align: left; border-right: 1px solid var(--line); }
+.stat:last-child { border-right: 0; }
+.stat strong { display: block; font-family: var(--display); font-size: 2.4rem; font-weight: 700; letter-spacing: -.025em; line-height: 1.1; }
+.stat span { font-family: var(--mono); font-size: .74rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); }
+
+/* ---------- ticker ---------- */
+.ticker { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); overflow: hidden; padding: 18px 0; background: #fff; }
+.ticker-track { display: flex; gap: 56px; width: max-content; animation: tick 45s linear infinite; font-size: .95rem; font-weight: 500; color: var(--ink-3); }
+.ticker-track span { display: inline-flex; align-items: center; gap: 10px; }
+.ticker-track span::before { content: ""; width: 9px; height: 9px; border-radius: 2px; border: 1.5px solid var(--brand); transform: rotate(45deg); }
+@keyframes tick { to { transform: translateX(-50%); } }
+
+/* ---------- cards ---------- */
+.grid { display: grid; gap: 16px; }
+.g2 { grid-template-columns: repeat(2, 1fr); }
+.g3 { grid-template-columns: repeat(3, 1fr); }
+.card { position: relative; background: #fff; border: 1px solid var(--line); border-radius: var(--r); padding: 26px; transition: border-color .2s, transform .2s; }
+.card:hover { border-color: var(--brand-line); transform: translateY(-2px); }
+.card p { color: var(--ink-2); font-size: .95rem; margin-top: 8px; }
+.ico { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: var(--brand-soft); margin-bottom: 18px; }
+.ico svg { width: 21px; height: 21px; stroke: var(--brand); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.num { position: absolute; top: 24px; right: 24px; font-family: var(--mono); font-size: .74rem; color: var(--ink-3); }
+
+/* line-art palette used by the inline svgs */
+.la { fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.la-b { fill: none; stroke: var(--brand); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.la-m { fill: none; stroke: var(--ink-3); stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+.la.f-w, .f-w { fill: #fff; } .la.f-s, .f-s { fill: var(--brand-soft); } .f-b { fill: var(--brand); } .f-m { fill: var(--mint); } .f-g { fill: var(--bg-3); }
+.dash { stroke-dasharray: 5 6; animation: dash 1.2s linear infinite; }
+@keyframes dash { to { stroke-dashoffset: -22; } }
+.svg-t { font-family: var(--mono); font-size: 11px; fill: var(--ink-3); }
+.svg-h { font-family: var(--display); font-size: 14px; font-weight: 600; fill: var(--ink); }
+
+/* ---------- tracks ---------- */
+.tracks { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.track { border: 1px solid var(--line); border-radius: 18px; background: #fff; overflow: hidden; display: flex; flex-direction: column; }
+.track-art { border-bottom: 1px solid var(--line); background-color: var(--bg-2); }
+.track-art svg { width: 100%; height: auto; }
+.track-body { padding: 32px; display: flex; flex-direction: column; flex: 1; }
+.track h3 { font-size: 1.9rem; font-weight: 700; letter-spacing: -.02em; margin: 10px 0; }
+.track-body > p { color: var(--ink-2); }
+.checks { list-style: none; display: grid; gap: 10px; margin: 20px 0 28px; }
+.checks li { display: flex; gap: 12px; color: var(--ink-2); font-size: .97rem; }
+.checks li::before { content: ""; flex-shrink: 0; width: 18px; height: 18px; margin-top: 3px; border-radius: 50%; background: var(--mint-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2312b886' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 12 4 4 8-8'/%3E%3C/svg%3E") center/12px no-repeat; }
+.track-body .btn { margin-top: auto; align-self: flex-start; }
+
+.flow { margin-top: 16px; border: 1px solid var(--line); border-radius: 18px; background: #fff; padding: 28px; }
+.flow svg { width: 100%; height: auto; }
+.flow-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 24px; border-top: 1px solid var(--line); padding-top: 24px; }
+.flow-steps .k { font-family: var(--mono); font-size: .74rem; color: var(--brand); }
+.flow-steps h3 { margin-top: 4px; }
+.flow-steps p { color: var(--ink-2); font-size: .94rem; margin-top: 4px; }
+
+/* ---------- code ---------- */
+.buyer-wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 24px; align-items: start; }
+.code { border: 1px solid var(--line); border-radius: 16px; background: #fff; overflow: hidden; font-family: var(--mono); font-size: .83rem; line-height: 1.75; position: sticky; top: 90px; }
+.code-tabs { display: flex; border-bottom: 1px solid var(--line); background: var(--bg-2); }
+.code-tabs span { padding: 11px 16px; font-size: .76rem; color: var(--ink-3); border-right: 1px solid var(--line); }
+.code-tabs span.on { background: #fff; color: var(--ink); box-shadow: inset 0 -2px 0 var(--brand); }
+.code pre { padding: 20px 22px; overflow-x: auto; color: var(--ink); }
+.code .c { color: var(--ink-3); } .code .s { color: #0b8a63; } .code .k { color: var(--brand-2); } .code .n { color: #c2255c; }
+
+/* ---------- spec ---------- */
+.spec { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; background: #fff; margin-top: 72px; }
+.spec-art { background-color: var(--bg-2); border-right: 1px solid var(--line); display: grid; place-items: center; padding: 30px; }
+.spec-art svg { width: 100%; max-width: 380px; height: auto; }
+.spec-body { padding: 40px; }
+.spec-body h3 { font-size: 1.9rem; font-weight: 700; letter-spacing: -.02em; margin: 10px 0 8px; }
+.spec-body > p { color: var(--ink-2); }
+.spec dl { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-top: 24px; }
+.spec dl div { background: #fff; padding: 14px 16px; }
+.spec dt { font-size: .8rem; color: var(--ink-3); }
+.spec dd { font-family: var(--display); font-size: 1.5rem; font-weight: 700; letter-spacing: -.03em; }
+.note { font-size: .86rem; color: var(--ink-3); margin-top: 16px; }
+.sub-h { font-size: 1.9rem; font-weight: 700; letter-spacing: -.02em; margin: 88px 0 24px; }
+
+/* ---------- hosts ---------- */
+.scene { border: 1px solid var(--line); border-radius: 18px; overflow: hidden; background: linear-gradient(#fbf9ff, #fff); margin-bottom: 16px; }
+.scene svg { width: 100%; height: auto; }
+.callout { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-top: 16px; padding: 22px 26px; border: 1px solid var(--brand-line); border-radius: 14px; background: var(--brand-soft); }
+.callout p { color: var(--ink-2); max-width: 760px; }
+.callout b { color: var(--ink); }
+
+/* ---------- platform ---------- */
+.tabs { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 12px; background: #fff; margin-bottom: 18px; }
+.tab-btn { font: inherit; font-size: .92rem; font-weight: 500; padding: 8px 16px; border-radius: 8px; border: 0; background: transparent; color: var(--ink-2); cursor: pointer; transition: background .15s, color .15s; }
+.tab-btn:hover { color: var(--ink); }
+.tab-btn.active { background: var(--brand-soft); color: var(--brand-2); }
+.tab-panel { display: none; grid-template-columns: 1.2fr .8fr; gap: 36px; border: 1px solid var(--line); border-radius: 18px; background: #fff; padding: 36px; }
+.tab-panel.active { display: grid; animation: fade .35s ease; }
+@keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.tab-panel h3 { font-size: 1.8rem; font-weight: 700; letter-spacing: -.02em; }
+.tab-panel > div > p { color: var(--ink-2); margin: 10px 0 18px; }
+.tab-panel .lbl { font-family: var(--mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); }
+.tab-panel ul { list-style: none; margin-top: 12px; display: grid; gap: 10px; }
+.tab-panel li { display: flex; gap: 12px; color: var(--ink-2); }
+.tab-panel li::before { content: "→"; color: var(--brand); font-family: var(--mono); }
+.tab-art { border-radius: 14px; background-color: var(--bg-2); border: 1px solid var(--line); display: grid; place-items: center; padding: 16px; }
+.tab-art svg { width: 100%; max-width: 300px; height: auto; }
+
+.stack-wrap { display: grid; grid-template-columns: .8fr 1.2fr; gap: 48px; align-items: center; margin-top: 88px; }
+.stack-wrap h2 { font-size: clamp(2rem, 3.8vw, 2.9rem); font-weight: 700; letter-spacing: -.025em; line-height: 1.1; margin: 14px 0 12px; }
+.stack-wrap p { color: var(--ink-2); }
+.stack { display: grid; gap: 8px; }
+.layer { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px 20px; border-radius: 12px; background: #fff; border: 1px solid var(--line); transition: transform .2s, border-color .2s; }
+.layer:hover { transform: translateX(6px); border-color: var(--brand-line); }
+.layer b { font-weight: 600; display: flex; align-items: center; gap: 12px; }
+.layer b i { width: 8px; height: 8px; border-radius: 2px; background: var(--brand); opacity: var(--o, 1); }
+.layer span { font-family: var(--mono); font-size: .76rem; color: var(--ink-3); text-align: right; }
+
+/* ---------- company ---------- */
+.mvv { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 16px; }
+.values { list-style: none; display: grid; gap: 10px; margin-top: 12px; }
+.values li { color: var(--ink-2); font-size: .94rem; }
+.values b { color: var(--ink); font-weight: 600; }
+.team { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 16px; }
+.avatar { width: 52px; height: 52px; border-radius: 12px; display: grid; place-items: center; margin-bottom: 16px; font-family: var(--display); font-weight: 700; color: var(--brand-2); background: var(--brand-soft); border: 1px solid var(--brand-line); }
+.role { font-size: .85rem; color: var(--ink-3); }
+.mail { display: inline-block; margin-top: 12px; font-size: .86rem; color: var(--brand-2); }
+.mail:hover { text-decoration: underline; }
+
+/* ---------- contact ---------- */
+.cta { position: relative; border: 1px solid var(--brand-line); border-radius: 22px; overflow: hidden; background: linear-gradient(135deg, #f6f1ff, #fff 60%); padding: 56px; display: grid; grid-template-columns: 1.2fr .8fr; gap: 32px; align-items: center; }
+.cta > div { position: relative; }
+.cta h2 { font-size: clamp(2.2rem, 4.6vw, 3.4rem); font-weight: 700; letter-spacing: -.025em; line-height: 1.05; }
+.cta p { color: var(--ink-2); margin-top: 12px; font-size: 1.08rem; }
+.cta-actions { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.cta-orbit { position: absolute; right: -90px; top: -90px; width: 360px; height: 360px; opacity: .55; pointer-events: none; }
+.offices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
+.offices .lbl { font-family: var(--mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--brand); }
+.offices h3 { margin-top: 10px; }
+.offices address { font-style: normal; color: var(--ink-2); margin-top: 8px; line-height: 1.7; font-size: .95rem; }
+.offices a:hover { color: var(--brand); }
+.faq-wrap { display: grid; grid-template-columns: .8fr 1.2fr; gap: 56px; margin-top: 96px; }
+.faq-wrap h2 { font-size: clamp(2rem, 3.8vw, 2.9rem); font-weight: 700; letter-spacing: -.025em; line-height: 1.1; margin-top: 14px; }
+.start-steps { list-style: none; counter-reset: s; margin: 28px 0 0 13px; border-left: 1px solid var(--line); }
+.start-steps li { counter-increment: s; position: relative; padding: 0 0 24px 28px; }
+.start-steps li::before { content: counter(s); position: absolute; left: -13px; top: 0; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-size: .75rem; color: var(--brand-2); background: #fff; border: 1px solid var(--brand-line); }
+.start-steps p { color: var(--ink-2); font-size: .93rem; }
+details { border-bottom: 1px solid var(--line); }
+details:first-child { border-top: 1px solid var(--line); }
+summary { cursor: pointer; list-style: none; padding: 20px 4px; font-weight: 600; display: flex; justify-content: space-between; gap: 16px; align-items: center; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; font-family: var(--mono); font-size: 1.25rem; color: var(--ink-3); transition: transform .2s; }
+details[open] summary::after { transform: rotate(45deg); color: var(--brand); }
+details p { padding: 0 4px 20px; color: var(--ink-2); }
+
+/* ---------- footer ---------- */
+footer { border-top: 1px solid var(--line); padding: 64px 0 28px; background: #fff; }
+.foot { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 40px; }
+.foot p { color: var(--ink-2); margin-top: 12px; max-width: 300px; font-size: .94rem; }
+.foot h4 { font-size: .85rem; font-weight: 600; margin-bottom: 14px; }
+.foot ul { list-style: none; display: grid; gap: 9px; }
+.foot ul a { color: var(--ink-2); font-size: .93rem; }
+.foot ul a:hover { color: var(--brand); }
+.foot-bottom { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 52px; padding-top: 22px; border-top: 1px solid var(--line); font-size: .86rem; color: var(--ink-3); }
+.status { display: inline-flex; gap: 8px; align-items: center; }
+.status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--mint); }
+
+/* ---------- reveal ---------- */
+.js .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+.js .reveal.in { opacity: 1; transform: none; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 1060px) {
+  .stage-body { grid-template-columns: 1fr; }
+  .stage-side { display: none; }
+  .tracks, .buyer-wrap, .spec, .stack-wrap, .faq-wrap, .cta, .tab-panel.active { grid-template-columns: 1fr; }
+  .code { position: static; }
+  .spec-art { border-right: 0; border-bottom: 1px solid var(--line); }
+  .g3, .mvv, .offices { grid-template-columns: 1fr 1fr; }
+  .team { grid-template-columns: 1fr 1fr; }
+  .foot { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 820px) {
+  .menu-btn { display: block; }
+  nav ul { display: none; position: absolute; top: 64px; left: 0; right: 0; flex-direction: column; align-items: stretch; background: #fff; border-bottom: 1px solid var(--line); padding: 10px 16px 16px; }
+  nav ul.open { display: flex; }
+  nav a { display: block; }
+  nav .btn { margin: 8px 0 0; justify-content: center; }
+  .stats { grid-template-columns: 1fr 1fr; }
+  .stat:nth-child(2) { border-right: 0; }
+  .stat:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+}
+@media (max-width: 640px) {
+  .wrap { padding: 0 16px; }
+  section { padding: 76px 0; }
+  .hero { padding-top: 56px; }
+  .stage { margin-top: 44px; border-radius: 16px 16px 0 0; }
+  .g2, .g3, .mvv, .team, .offices, .foot, .flow-steps, .spec dl { grid-template-columns: 1fr; }
+  .track-body, .spec-body, .tab-panel { padding: 24px; }
+  .flow { padding: 16px; }
+  .cta { padding: 32px 22px; }
+  .globe-tag { font-size: .64rem; }
+  .stage-bar span:not(.live) { display: none; }
+  .layer { flex-direction: column; align-items: flex-start; }
+  .layer span { text-align: left; }
+  .code { font-size: .74rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  html { scroll-behavior: auto; }
+  .js .reveal { opacity: 1; transform: none; }
+}
+</style>
+</head>
+<body>
+
+
+<header>
+  <div class="wrap nav">
+    <a href="#top" class="logo" aria-label="kernel2cloud home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 28 9v14l-12 7L4 23V9z" fill="none" stroke="#7b3cff" stroke-width="2.4"/><path d="M16 9 22 12.5v7L16 23l-6-3.5v-7z" fill="#7b3cff"/></svg>
+      <span>kernel2<b>cloud</b></span>
+    </a>
+    <button class="menu-btn" aria-label="Open menu" aria-expanded="false">☰</button>
+    <nav>
+      <ul id="menu">
+        <li><a href="#compute">Compute</a></li>
+        <li><a href="#hosts">Host a rack</a></li>
+        <li><a href="#platform">Platform</a></li>
+        <li><a href="#company">Company</a></li>
+        <li><a href="#contact" class="btn">Get started <span class="arrow">→</span></a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="wrap">
+    <span class="pill"><em>New</em> Distributed GPU cloud</span>
+    <h1>AI compute from <span class="accent">racks in your neighbourhood</span></h1>
+    <p class="lead">Run your models on NVIDIA RTX PRO 6000 Blackwell GPUs spread across many small sites — sold as one pool. One deployment, one HTTPS endpoint, one usage figure.</p>
+    <div class="hero-cta">
+      <a href="#compute" class="btn">Rent GPU compute <span class="arrow">→</span></a>
+      <a href="#hosts" class="btn btn-line">Host a rack</a>
+    </div>
+
+    <div class="stage">
+      <div class="stage-bar"><i></i><i></i><i></i><span>kernel2cloud · one pool</span><span class="live">all sites reporting</span></div>
+      <div class="stage-body dots">
+        <div class="stage-side l">
+          <span class="lbl">Rack</span>
+          <div class="mini">
+            <div class="row"><b>rack-03</b><span class="ok">healthy</span></div>
+            <small>8 / 8 GPUs healthy</small>
+            <div class="bars"><span style="--h:82%"></span><span style="--h:76%"></span><span style="--h:90%"></span><span style="--h:68%"></span><span style="--h:85%"></span><span style="--h:72%"></span><span style="--h:88%"></span><span style="--h:79%"></span></div>
+          </div>
+          <span class="lbl">Hardware</span>
+          <div class="mini">
+            <div class="row"><small>GPU</small><span>RTX PRO 6000</span></div>
+            <div class="row"><small>memory</small><span>8–16 × 96 GB</span></div>
+            <div class="row"><small>link</small><span>PCIe</span></div>
+          </div>
+        </div>
+
+        <div class="globe-box">
+          <div class="globe-wrap">
+            <canvas id="globe-canvas" aria-label="Rotating globe with rack sites"></canvas>
+            <svg class="fallback" viewBox="0 0 400 400" aria-hidden="true">
+              <circle cx="200" cy="200" r="180" fill="#fff" stroke="#ddd0ff" stroke-width="1.5"/>
+              <g class="la-m" stroke-dasharray="2 5">
+                <ellipse cx="200" cy="200" rx="60" ry="180"/><ellipse cx="200" cy="200" rx="120" ry="180"/>
+                <ellipse cx="200" cy="200" rx="180" ry="60"/><ellipse cx="200" cy="200" rx="180" ry="120"/>
+                <path d="M20 200h360M200 20v360"/>
+              </g>
+              <g class="f-b"><circle cx="150" cy="150" r="5"/><circle cx="260" cy="190" r="5"/><circle cx="220" cy="270" r="5"/><circle cx="120" cy="240" r="5"/></g>
+            </svg>
+          </div>
+          <div class="globe-tag t1"><b>rack · backyard</b> online</div>
+          <div class="globe-tag t2">chat-acme.apps <b>200 OK</b></div>
+          <div class="globe-tag t3">copies ready <b>3 / 3</b></div>
+        </div>
+
+        <div class="stage-side r">
+          <span class="lbl">Deployment</span>
+          <div class="mini">
+            <div class="row"><b>chat</b><span class="ok">live</span></div>
+            <small>chat-acme.apps.kernel2cloud.ai</small>
+          </div>
+          <div class="mini">
+            <div class="row"><small>copies ready</small><b>3 / 3</b></div>
+            <div class="row"><small>GPUs per copy</small><span>2</span></div>
+          </div>
+          <span class="lbl">GPU usage</span>
+          <div class="mini">
+            <small>GPU-hours, hourly</small>
+            <svg class="spark" viewBox="0 0 200 40" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M0 30 L20 26 L40 28 L60 18 L80 20 L100 12 L120 16 L140 8 L160 12 L180 6 L200 9 L200 40 L0 40Z" fill="#f3edff"/>
+              <path d="M0 30 L20 26 L40 28 L60 18 L80 20 L100 12 L120 16 L140 8 L160 12 L180 6 L200 9" fill="none" stroke="#7b3cff" stroke-width="2"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat"><strong>8–16</strong><span>GPUs per server</span></div>
+        <div class="stat"><strong data-count="96" data-suffix=" GB">96 GB</strong><span>Per GPU</span></div>
+        <div class="stat"><strong>1.5 TB</strong><span>GPU memory per server, max</span></div>
+        <div class="stat"><strong>1</strong><span>Endpoint</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span>RTX PRO 6000 Blackwell</span><span>HTTPS endpoints</span><span>Copies across racks</span><span>Staged rollouts</span><span>Health checks</span><span>NVIDIA DCGM alerts</span><span>Whole servers per buyer</span><span>Backyard sites</span>
+    <span>RTX PRO 6000 Blackwell</span><span>HTTPS endpoints</span><span>Copies across racks</span><span>Staged rollouts</span><span>Health checks</span><span>NVIDIA DCGM alerts</span><span>Whole servers per buyer</span><span>Backyard sites</span>
+  </div>
+</div>
+
+<!-- ================= TWO AUDIENCES ================= -->
+<section>
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Two ways in</span>
+      <h2>A GPU cloud built from <span class="accent">many small sites</span></h2>
+      <p>We own and run compact GPU racks at homes and properties across many regions, and sell their capacity as one cloud.</p>
+    </div>
+    <div class="tracks">
+      <div class="track reveal">
+        <div class="track-art dots">
+          <svg viewBox="0 0 560 220" aria-hidden="true">
+            <g transform="translate(60 30)">
+              <path class="la f-w" d="M0 40 70 0l70 40-70 40z"/>
+              <path class="la f-w" d="M0 40v70l70 40V80z"/>
+              <path class="la f-s" d="M140 40v70l-70 40V80z"/>
+              <path class="la-b" d="M14 70l42 24M14 88l42 24M84 94l42-24M84 112l42-24"/>
+              <text class="svg-t" x="70" y="176" text-anchor="middle">your image</text>
+            </g>
+            <path class="la-b dash" d="M215 110h110"/>
+            <path class="la-b" d="M318 103l8 7-8 7"/>
+            <g transform="translate(340 66)">
+              <rect class="la f-w" width="180" height="88" rx="12"/>
+              <rect class="f-g" x="12" y="12" width="156" height="20" rx="6"/>
+              <circle class="f-m" cx="24" cy="22" r="4"/>
+              <text class="svg-t" x="34" y="26">https://chat-acme…</text>
+              <path class="la-m" d="M14 50h100M14 66h70"/>
+              <rect class="f-b" x="128" y="54" width="38" height="18" rx="5"/>
+              <text x="147" y="67" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#fff">200</text>
+            </g>
+          </svg>
+        </div>
+        <div class="track-body">
+          <span class="eyebrow">For AI teams</span>
+          <h3>Rent GPU compute</h3>
+          <p>Bring a container image. We run it on as many GPUs and copies as you ask for and give you one HTTPS endpoint.</p>
+          <ul class="checks">
+            <li>Up to 16 GPUs and 1.5 TB of GPU memory per copy</li>
+            <li>Copies spread over several racks, so one site going down doesn't take you offline</li>
+            <li>Your own servers — never shared with another buyer</li>
+          </ul>
+          <a href="#compute" class="btn">How deploying works <span class="arrow">→</span></a>
+        </div>
+      </div>
+      <div class="track reveal">
+        <div class="track-art dots">
+          <svg viewBox="0 0 560 220" aria-hidden="true">
+            <path class="la-m" d="M20 196h520"/>
+            <g transform="translate(70 76)">
+              <path class="la f-w" d="M0 50 70 0l70 50v70H0z"/>
+              <rect class="la f-s" x="54" y="72" width="32" height="48" rx="2"/>
+              <rect class="la f-w" x="16" y="62" width="26" height="24" rx="2"/>
+              <rect class="la f-w" x="98" y="62" width="26" height="24" rx="2"/>
+            </g>
+            <circle class="la f-w" cx="270" cy="124" r="30"/><path class="la" d="M270 154v42"/>
+            <path class="la-m" d="M310 196v-30M330 196v-30M350 196v-30M300 176h60"/>
+            <g transform="translate(390 104)">
+              <path class="la f-w" d="M0 22 40 0l40 22-40 22z"/>
+              <path class="la f-w" d="M0 22v50l40 22V44z"/>
+              <path class="la f-s" d="M80 22v50L40 94V44z"/>
+              <path class="la-b" d="M48 56l24-13M48 66l24-13M48 76l24-13"/>
+              <circle class="f-m" cx="12" cy="40" r="3"/>
+            </g>
+            <g class="la-b"><path d="M410 76a40 40 0 0 1 40 0"/><path d="M400 62a60 60 0 0 1 60 0"/><path d="M390 48a80 80 0 0 1 80 0"/></g>
+            <circle class="f-b" cx="430" cy="90" r="3"/>
+          </svg>
+        </div>
+        <div class="track-body">
+          <span class="eyebrow">For property owners</span>
+          <h3>Host a rack</h3>
+          <p>Give one of our racks a home in your backyard, garage or outbuilding. We bring the hardware and the internet connection, and run it remotely.</p>
+          <ul class="checks">
+            <li>We install, monitor and maintain the rack</li>
+            <li>Kernel2Cloud provides the rack's internet connection</li>
+            <li>No software or IT work on your side</li>
+          </ul>
+          <a href="#hosts" class="btn btn-line">About hosting <span class="arrow">→</span></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow reveal">
+      <svg viewBox="0 0 1000 290" aria-label="Diagram: racks at many sites feed one scheduler and gateway, which serves one buyer endpoint">
+        <text class="svg-t" x="30" y="20">SITES</text><text class="svg-t" x="430" y="20">KERNEL2CLOUD</text><text class="svg-t" x="790" y="20">YOU</text>
+        <rect class="la f-w" x="30" y="40" width="200" height="50" rx="10"/><text class="svg-h" x="52" y="70">rack · backyard</text><circle class="f-m" cx="210" cy="65" r="4"/>
+        <rect class="la f-w" x="30" y="108" width="200" height="50" rx="10"/><text class="svg-h" x="52" y="138">rack · garage</text><circle class="f-m" cx="210" cy="133" r="4"/>
+        <rect class="la f-w" x="30" y="176" width="200" height="50" rx="10"/><text class="svg-h" x="52" y="206">rack · outbuilding</text><circle class="f-m" cx="210" cy="201" r="4"/>
+        <text class="svg-t" x="130" y="258" text-anchor="middle">…many regions</text>
+        <g class="la-b dash">
+          <path d="M230 65 C 320 65, 330 133, 410 133"/><path d="M230 133 H 410"/><path d="M230 201 C 320 201, 330 133, 410 133"/><path d="M610 133 H 770"/>
+        </g>
+        <rect x="410" y="68" width="200" height="130" rx="16" fill="#f3edff" stroke="#7b3cff" stroke-width="1.6"/>
+        <text class="svg-h" x="510" y="108" text-anchor="middle" font-size="16">One pool</text>
+        <text x="510" y="136" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="#5d22e0">scheduler</text>
+        <text x="510" y="158" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="#5d22e0">HTTPS gateway</text>
+        <rect class="la f-w" x="770" y="88" width="200" height="90" rx="14"/>
+        <text class="svg-h" x="870" y="124" text-anchor="middle">Your endpoint</text>
+        <text class="svg-t" x="870" y="150" text-anchor="middle">*.apps.kernel2cloud.ai</text>
+      </svg>
+      <div class="flow-steps">
+        <div><span class="k">01 · SITES</span><h3>Racks at many homes</h3><p>Each rack is a 1U control plane and one GPU server with 8 to 16 GPUs, spread across districts and regions.</p></div>
+        <div><span class="k">02 · POOL</span><h3>One scheduler</h3><p>Copies of your container go wherever there are free GPUs, spread across racks.</p></div>
+        <div><span class="k">03 · YOU</span><h3>One endpoint</h3><p>You see one capacity, one link and one usage figure — never individual sites.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COMPUTE ================= -->
+<section id="compute" class="alt">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">For AI teams</span>
+      <h2>Ship a container, get an endpoint</h2>
+      <p>Tell us the image, the port, how many GPUs each copy needs and how many copies to run. We handle placement, health and rollouts.</p>
+    </div>
+
+    <div class="buyer-wrap">
+      <div class="code reveal">
+        <div class="code-tabs"><span class="on">deployment.json</span><span>call.sh</span></div>
+<pre><span class="c">// one copy = one server's worth of GPUs, or less</span>
+{
+  <span class="k">"name"</span>: <span class="s">"chat"</span>,
+  <span class="k">"image"</span>: <span class="s">"vllm/vllm-openai:latest"</span>,
+  <span class="k">"args"</span>: [<span class="s">"--model"</span>, <span class="s">"Qwen/Qwen2.5-72B-Instruct"</span>,
+           <span class="s">"--tensor-parallel-size"</span>, <span class="s">"2"</span>],
+  <span class="k">"port"</span>: <span class="n">8000</span>,
+  <span class="k">"gpus_per_replica"</span>: <span class="n">2</span>,
+  <span class="k">"replicas"</span>: <span class="n">3</span>,
+  <span class="k">"health_path"</span>: <span class="s">"/v1/models"</span>
+}
+
+<span class="c"># then call it with your API key</span>
+curl https://chat-acme.apps.kernel2cloud.ai/v1/models \
+  -H <span class="s">"Authorization: Bearer $K2C_API_KEY"</span></pre>
+      </div>
+      <div class="grid g2">
+        <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 4.4 3.4 8.4 8 10 4.6-1.6 8-5.6 8-10V6z"/><path d="M9 12h6M12 9v6"/></svg></div><h3>HTTPS with API keys</h3><p>Every deployment gets its own hostname. Requests need one of your API keys.</p></div>
+        <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><rect x="8.5" y="14" width="7" height="7" rx="1.5"/></svg></div><h3>Copies across racks</h3><p>Traffic is load-balanced over all ready copies. If a rack goes down, the others keep answering.</p></div>
+        <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 12h4l3-7 3 14 3-7h3"/></svg></div><h3>Health checks</h3><p>Set a health path and a startup window — loading a big model can take minutes, and that's fine.</p></div>
+        <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg></div><h3>Staged rollouts</h3><p>New versions replace copies one at a time and pause if the new version can't start.</p></div>
+        <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h13"/></svg></div><h3>Your logs</h3><p>Read your containers' logs in the portal. You only ever see your own.</p></div>
+        <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><h3>GPU usage, hourly</h3><p>GPU-hours per deployment and GPU model, broken down by hour.</p></div>
+      </div>
+    </div>
+
+    <div class="spec reveal">
+      <div class="spec-art dots">
+        <svg viewBox="0 0 360 330" aria-label="Isometric rack: one 1U control plane above one GPU server holding 8 to 16 GPUs">
+          <ellipse cx="180" cy="292" rx="130" ry="22" fill="#ece6fb"/>
+          <path class="la f-w" d="M60 130 180 70l120 60-120 60z"/>
+          <path class="la f-w" d="M60 130v110l120 60V190z"/>
+          <path class="la f-s" d="M300 130v110l-120 60V190z"/>
+          <g class="la-b"><path d="M192 206l96-48M192 222l96-48M192 238l96-48M192 254l96-48M192 270l96-48"/></g>
+          <g class="la-m"><path d="M80 158v70M100 168v70M120 178v70M140 188v70M160 198v70"/></g>
+          <path class="la f-w" d="M60 104 180 44l120 60-120 60z"/>
+          <path class="la f-w" d="M60 104v16l120 60v-16z"/>
+          <path class="la f-s" d="M300 104v16l-120 60v-16z"/>
+          <circle class="f-m" cx="200" cy="168" r="3"/>
+          <text class="svg-t" x="300" y="26" text-anchor="middle">1U · control plane</text>
+          <path class="la-m" d="M300 32 262 84"/>
+          <text class="svg-t" x="180" y="324" text-anchor="middle">GPU server · 8–16 × RTX PRO 6000</text>
+        </svg>
+      </div>
+      <div class="spec-body">
+        <span class="eyebrow">The hardware</span>
+        <h3>NVIDIA RTX PRO 6000 Blackwell</h3>
+        <p>Every rack holds one GPU server with 8 to 16 of them. Each copy of your model runs on a single server.</p>
+        <dl>
+          <div><dt>GPUs per server</dt><dd>8–16</dd></div>
+          <div><dt>Memory per GPU</dt><dd>96 GB</dd></div>
+          <div><dt>GPU memory per server</dt><dd>768 GB – 1.5 TB</dd></div>
+          <div><dt>Interconnect</dt><dd>PCIe</dd></div>
+        </dl>
+        <p class="note">Largest model per copy: what fits in one server — up to 1.5 TB of GPU memory (more with FP4). Models that span several servers aren't offered yet.</p>
+      </div>
+    </div>
+
+    <h3 class="sub-h reveal">What teams run on it</h3>
+    <div class="grid g3">
+      <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg></div><h3>LLM inference</h3><p>Chat and completion APIs with vLLM, SGLang, TGI or your own server.</p></div>
+      <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-8 9"/></svg></div><h3>Image &amp; video generation</h3><p>Diffusion and video models behind an HTTP API.</p></div>
+      <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h8M6 8v8M18 8v8M8 18h8"/></svg></div><h3>Embeddings &amp; reranking</h3><p>The retrieval side of RAG, scaled out as copies.</p></div>
+      <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3v18M8 8v8M4 10v4M16 6v12M20 10v4"/></svg></div><h3>Speech</h3><p>Transcription and text-to-speech models.</p></div>
+      <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></div><h3>Vision</h3><p>Detection, segmentation and multimodal models.</p></div>
+      <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/></svg></div><h3>Anything in a container</h3><p>If it serves HTTP on a port, it runs. Private registries supported.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HOSTS ================= -->
+<section id="hosts">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">For property owners</span>
+      <h2>Give a rack a home</h2>
+      <p>Our racks live in backyards, garages and outbuildings, spread out so no two sites are near each other. If you have the space, we'd like to hear from you.</p>
+    </div>
+
+    <div class="scene reveal">
+      <svg viewBox="0 0 1200 300" aria-label="Illustration: several homes, each with a rack in the yard, linked to one pool">
+        <g transform="translate(536 30)">
+          <path class="la f-s" d="M30 62a28 28 0 0 1 6-56 38 38 0 0 1 72 4 26 26 0 0 1 16 52z"/>
+          <text x="70" y="44" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-weight="600" font-size="14" fill="#5d22e0">one pool</text>
+        </g>
+        <g class="la-b dash">
+          <path d="M590 92 C 590 150, 198 130, 198 200"/>
+          <path d="M598 92 C 598 155, 480 145, 480 206"/>
+          <path d="M612 92 C 612 155, 760 145, 760 206"/>
+          <path d="M620 92 C 620 150, 1020 130, 1020 200"/>
+        </g>
+        <path class="la-m" d="M0 270h1200"/>
+        <g transform="translate(60 180)"><path class="la f-w" d="M0 34 48 0l48 34v56H0z"/><rect class="la f-s" x="38" y="56" width="20" height="34"/></g>
+        <g transform="translate(176 216)"><path class="la f-w" d="M0 12 22 0l22 12-22 12z"/><path class="la f-w" d="M0 12v30l22 12V24z"/><path class="la f-s" d="M44 12v30L22 54V24z"/><circle class="f-m" cx="8" cy="28" r="2.5"/></g>
+        <g transform="translate(330 186)"><path class="la f-w" d="M0 30h110v54H0z"/><path class="la f-w" d="M-6 30 55 0l61 30"/><path class="la-m" d="M20 50h70M20 62h70M20 74h70"/></g>
+        <g transform="translate(458 216)"><path class="la f-w" d="M0 12 22 0l22 12-22 12z"/><path class="la f-w" d="M0 12v30l22 12V24z"/><path class="la f-s" d="M44 12v30L22 54V24z"/><circle class="f-m" cx="8" cy="28" r="2.5"/></g>
+        <circle class="la f-w" cx="560" cy="226" r="20"/><path class="la" d="M560 246v24"/>
+        <circle class="la f-w" cx="640" cy="232" r="14"/><path class="la" d="M640 246v24"/>
+        <g transform="translate(670 200)"><path class="la f-w" d="M0 24 36 0l36 24v46H0z"/><rect class="la f-s" x="26" y="40" width="20" height="30"/></g>
+        <g transform="translate(738 216)"><path class="la f-w" d="M0 12 22 0l22 12-22 12z"/><path class="la f-w" d="M0 12v30l22 12V24z"/><path class="la f-s" d="M44 12v30L22 54V24z"/><circle class="f-m" cx="8" cy="28" r="2.5"/></g>
+        <g transform="translate(860 170)"><path class="la f-w" d="M0 40 60 0l60 40v60H0z"/><rect class="la f-w" x="16" y="56" width="24" height="22"/><rect class="la f-w" x="80" y="56" width="24" height="22"/><rect class="la f-s" x="48" y="66" width="24" height="34"/></g>
+        <g transform="translate(998 216)"><path class="la f-w" d="M0 12 22 0l22 12-22 12z"/><path class="la f-w" d="M0 12v30l22 12V24z"/><path class="la f-s" d="M44 12v30L22 54V24z"/><circle class="f-m" cx="8" cy="28" r="2.5"/></g>
+        <path class="la-m" d="M1080 270v-30M1100 270v-30M1120 270v-30M1070 252h60"/>
+        <text class="svg-t" x="600" y="292" text-anchor="middle">no two sites near each other</text>
+      </svg>
+    </div>
+
+    <div class="grid g3">
+      <div class="card reveal"><span class="num">01</span><div class="ico"><svg viewBox="0 0 24 24"><path d="M3 11 12 4l9 7v9H3z"/><path d="M9 20v-6h6v6"/></svg></div><h3>We bring the rack</h3><p>A compact rack — one control-plane server and one GPU server — delivered and installed by our team.</p></div>
+      <div class="card reveal"><span class="num">02</span><div class="ico"><svg viewBox="0 0 24 24"><path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M2 9a15 15 0 0 1 20 0"/><circle cx="12" cy="19.5" r="1"/></svg></div><h3>We bring the internet</h3><p>Kernel2Cloud provides each rack's own connection, separate from your home network.</p></div>
+      <div class="card reveal"><span class="num">03</span><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h3>We run it remotely</h3><p>Health, temperature and faults are watched around the clock. You never touch the software.</p></div>
+    </div>
+    <div class="callout reveal">
+      <p><b>Have space for a rack?</b> Tell us where you are and what space and power you have, and we'll follow up.</p>
+      <a href="mailto:connect@kernel2cloud.ai?subject=Hosting%20a%20rack&amp;body=Location%20(city%2C%20region)%3A%0ASpace%20(backyard%2C%20garage%2C%20outbuilding)%3A%0AElectrical%20supply%3A%0A" class="btn">Apply to host <span class="arrow">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PLATFORM ================= -->
+<section id="platform" class="alt">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Platform</span>
+      <h2>Built to run GPUs in places that aren't data centers</h2>
+      <p>Racks sit on residential power and internet, in places we don't physically control. The platform is designed around that.</p>
+    </div>
+
+    <div class="tabs reveal" role="tablist">
+      <button class="tab-btn active" role="tab" aria-selected="true" data-tab="t1">Scheduling</button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="t2">GPU health</button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="t3">Security</button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="t4">Operations</button>
+    </div>
+
+    <div class="tab-panel active reveal" id="t1" role="tabpanel">
+      <div>
+        <h3>One pool, many sites</h3>
+        <p>The scheduler treats every rack as part of a single on-demand pool.</p>
+        <span class="lbl">How it places work</span>
+        <ul>
+          <li>Each copy lands on one server with enough free GPUs</li>
+          <li>Copies of a deployment are spread across racks</li>
+          <li>Rollouts replace one copy per pass and pause when a new version can't start</li>
+          <li>Each buyer gets whole servers; nobody shares a machine</li>
+        </ul>
+      </div>
+      <div class="tab-art dots">
+        <svg viewBox="0 0 300 220" aria-hidden="true">
+          <g class="la-b dash"><path d="M110 100H60V52M110 120H60v48M190 100h50V52M190 120h50v48"/></g>
+          <rect class="la f-s" x="110" y="80" width="80" height="60" rx="10"/>
+          <text x="150" y="115" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#5d22e0">scheduler</text>
+          <rect class="la f-w" x="30" y="20" width="60" height="32" rx="6"/><rect class="la f-w" x="210" y="20" width="60" height="32" rx="6"/>
+          <rect class="la f-w" x="30" y="168" width="60" height="32" rx="6"/><rect class="la f-w" x="210" y="168" width="60" height="32" rx="6"/>
+          <g class="f-b"><rect x="38" y="30" width="10" height="12" rx="2"/><rect x="52" y="30" width="10" height="12" rx="2"/><rect x="218" y="30" width="10" height="12" rx="2"/><rect x="38" y="178" width="10" height="12" rx="2"/><rect x="232" y="178" width="10" height="12" rx="2"/><rect x="246" y="178" width="10" height="12" rx="2"/></g>
+          <g class="f-g"><rect x="66" y="30" width="10" height="12" rx="2"/><rect x="232" y="30" width="10" height="12" rx="2"/><rect x="246" y="30" width="10" height="12" rx="2"/><rect x="52" y="178" width="10" height="12" rx="2"/><rect x="66" y="178" width="10" height="12" rx="2"/><rect x="218" y="178" width="10" height="12" rx="2"/></g>
+        </svg>
+      </div>
+    </div>
+    <div class="tab-panel" id="t2" role="tabpanel">
+      <div>
+        <h3>GPU health from NVIDIA DCGM</h3>
+        <p>Every GPU reports its health continuously, and problems become alerts for our operators.</p>
+        <span class="lbl">What we do with it</span>
+        <ul>
+          <li>GPU health alerts straight from DCGM telemetry</li>
+          <li>Servers with problems are cordoned and drained, and their copies move elsewhere</li>
+          <li>When a site loses power or cooling, the pool shrinks instead of failing</li>
+          <li>All rack metrics are kept centrally for every site</li>
+        </ul>
+      </div>
+      <div class="tab-art dots">
+        <svg viewBox="0 0 300 220" aria-hidden="true">
+          <rect class="la f-w" x="20" y="24" width="260" height="172" rx="12"/>
+          <path class="la-m" d="M40 160h220M40 120h220M40 80h220" stroke-dasharray="3 5"/>
+          <path d="M40 150 70 140 100 146 130 120 160 128 190 96 220 104 250 70 260 74" class="la-b"/>
+          <circle class="f-b" cx="250" cy="70" r="4"/>
+          <rect x="190" y="38" width="76" height="22" rx="6" fill="#fff4e0" stroke="#f59f00"/>
+          <text x="228" y="53" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#b26b00">alert</text>
+          <text class="svg-t" x="40" y="54">gpu temp</text>
+        </svg>
+      </div>
+    </div>
+    <div class="tab-panel" id="t3" role="tabpanel">
+      <div>
+        <h3>Security for untrusted places</h3>
+        <p>A rack in a backyard has to protect itself, so security starts at boot.</p>
+        <span class="lbl">Layers</span>
+        <ul>
+          <li>Immutable operating-system image on every server, with secure boot and TPM</li>
+          <li>New racks register themselves and wait for an operator's approval</li>
+          <li>Whole servers per buyer, on hardened Kubernetes</li>
+          <li>Endpoints only answer requests carrying the buyer's API key</li>
+          <li>Buyers can't override GPU driver settings from their containers</li>
+        </ul>
+      </div>
+      <div class="tab-art dots">
+        <svg viewBox="0 0 300 220" aria-hidden="true">
+          <circle class="la-m" cx="150" cy="104" r="94" stroke-dasharray="3 6"/>
+          <circle class="la-b" cx="150" cy="104" r="70"/>
+          <path class="la f-s" d="M150 46 112 60v32c0 28 16 50 38 58 22-8 38-30 38-58V60z"/>
+          <rect class="la f-w" x="134" y="92" width="32" height="26" rx="4"/>
+          <path class="la" d="M140 92v-8a10 10 0 0 1 20 0v8"/>
+          <circle class="f-b" cx="150" cy="105" r="3"/>
+          <text class="svg-t" x="150" y="212" text-anchor="middle">secure boot · TPM · approval</text>
+        </svg>
+      </div>
+    </div>
+    <div class="tab-panel" id="t4" role="tabpanel">
+      <div>
+        <h3>An operations console for the fleet</h3>
+        <p>Our team runs every site from one place.</p>
+        <span class="lbl">Tools</span>
+        <ul>
+          <li>Fleet map with each rack at its site</li>
+          <li>Hardware inventory read from the servers themselves</li>
+          <li>Remote terminals on racks, without opening ports at the site</li>
+          <li>An audit log of approvals, cordons and deployments</li>
+        </ul>
+      </div>
+      <div class="tab-art dots">
+        <svg viewBox="0 0 300 220" aria-hidden="true">
+          <rect class="la f-w" x="20" y="20" width="260" height="170" rx="12"/>
+          <path class="la-m" d="M20 44h260"/>
+          <circle class="f-g" cx="36" cy="32" r="4"/><circle class="f-g" cx="50" cy="32" r="4"/><circle class="f-g" cx="64" cy="32" r="4"/>
+          <path class="la-m" d="M50 90c20-20 50-24 70-10s40 18 60 4 50-10 70 6M40 140c30 10 60 4 90-10s60-6 90 10"/>
+          <g class="f-b"><circle cx="80" cy="84" r="5"/><circle cx="170" cy="92" r="5"/><circle cx="230" cy="80" r="5"/><circle cx="120" cy="132" r="5"/><circle cx="210" cy="140" r="5"/></g>
+          <rect x="34" y="158" width="130" height="20" rx="5" class="f-g"/>
+          <text class="svg-t" x="42" y="172">$ terminal rack-03</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="stack-wrap">
+      <div class="reveal">
+        <span class="eyebrow">The stack</span>
+        <h2>From your request to the silicon</h2>
+        <p>We build and run every layer, from the server's operating system to the portal you deploy from.</p>
+      </div>
+      <div class="stack reveal">
+        <div class="layer"><b><i></i>Buyer portal &amp; API</b><span>deployments · API keys · logs · usage</span></div>
+        <div class="layer"><b><i style="--o:.85"></i>HTTPS gateway</b><span>*.apps.kernel2cloud.ai</span></div>
+        <div class="layer"><b><i style="--o:.7"></i>Scheduler</b><span>placement · rollouts · health</span></div>
+        <div class="layer"><b><i style="--o:.55"></i>Rack agent</b><span>k2c-agent on every rack</span></div>
+        <div class="layer"><b><i style="--o:.4"></i>Rack OS &amp; hardware</b><span>immutable image · 8–16 × RTX PRO 6000</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= COMPANY ================= -->
+<section id="company">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Company</span>
+      <h2>Compute that lives where people do</h2>
+      <p>Big data centers wait years for power. We put GPUs into many small places that already have it.</p>
+    </div>
+    <div class="mvv">
+      <div class="card reveal"><h3>Our mission</h3><p>Make AI compute easier to get by building a GPU cloud out of many small sites instead of a few giant ones — and sharing the benefit with the people who host it.</p></div>
+      <div class="card reveal"><h3>How we work</h3><p>We own and operate every rack ourselves. Buyers deal with one cloud; hosts deal with one team.</p></div>
+      <div class="card reveal"><h3>Our values</h3>
+        <ul class="values">
+          <li><b>Reliability</b> — no single site is a single point of failure</li>
+          <li><b>Security</b> — designed for untrusted places</li>
+          <li><b>Honesty</b> — clear about what's built and what's next</li>
+          <li><b>Neighbourliness</b> — good guests on every property</li>
+        </ul>
+      </div>
+    </div>
+    <div class="team">
+      <div class="card reveal"><div class="avatar">AG</div><h3>Anush Gopalan</h3><div class="role">CEO</div><a class="mail" href="mailto:anush@kernel2cloud.ai">anush@kernel2cloud.ai</a></div>
+      <div class="card reveal"><div class="avatar">SP</div><h3>Santosh Panattu</h3><div class="role">COO</div><a class="mail" href="mailto:santosh@kernel2cloud.ai">santosh@kernel2cloud.ai</a></div>
+      <div class="card reveal"><div class="avatar">HS</div><h3>Harsha Srivatsa</h3><div class="role">Head of AI</div><a class="mail" href="mailto:harsha@kernel2cloud.ai">harsha@kernel2cloud.ai</a></div>
+      <div class="card reveal"><div class="avatar">SS</div><h3>Sudheer Sathi</h3><div class="role">Head of Data Engineering</div><a class="mail" href="mailto:sudheer@kernel2cloud.ai">sudheer@kernel2cloud.ai</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<section id="contact" class="alt">
+  <div class="wrap">
+    <div class="cta reveal">
+      <svg class="cta-orbit" viewBox="0 0 360 360" aria-hidden="true">
+        <circle class="la-b" cx="180" cy="180" r="170" stroke-dasharray="2 8"/>
+        <circle class="la-m" cx="180" cy="180" r="120"/>
+        <circle class="la-b" cx="180" cy="180" r="70" stroke-dasharray="40 14"/>
+        <circle class="f-b" cx="180" cy="10" r="6"/><circle class="f-m" cx="300" cy="180" r="5"/><circle class="f-b" cx="110" cy="180" r="4"/>
+      </svg>
+      <div>
+        <h2>Need GPUs, or have space for a rack?</h2>
+        <p>Tell us about your workload or your site. Our team answers both.</p>
+      </div>
+      <div class="cta-actions">
+        <a href="mailto:connect@kernel2cloud.ai?subject=GPU%20compute&amp;body=Model(s)%3A%0AGPUs%20per%20copy%3A%0ANumber%20of%20copies%3A%0AStart%20date%3A%0A" class="btn">Request GPU compute <span class="arrow">→</span></a>
+        <a href="mailto:connect@kernel2cloud.ai?subject=Hosting%20a%20rack" class="btn btn-line">Apply to host a rack</a>
+      </div>
+    </div>
+
+    <div class="offices">
+      <div class="card reveal"><span class="lbl">Headquarters</span><h3>Kernel2Cloud Inc</h3><address>372 Fairview Way<br>Milpitas, CA 95035<br>United States</address></div>
+      <div class="card reveal"><span class="lbl">Development center</span><h3>Kernel2Cloud Limited</h3><address>480/17, 45th Cross<br>Jayanagar 8th Block<br>Bangalore 560082, India</address></div>
+      <div class="card reveal"><span class="lbl">Get in touch</span><h3>Reach us</h3><address><a href="mailto:connect@kernel2cloud.ai">connect@kernel2cloud.ai</a><br><a href="https://www.kernel2cloud.ai">www.kernel2cloud.ai</a></address></div>
+    </div>
+
+    <div class="faq-wrap">
+      <div class="reveal">
+        <span class="eyebrow">Get started</span>
+        <h2>From image to endpoint</h2>
+        <ol class="start-steps">
+          <li><h3>Talk to us</h3><p>Share your model, GPUs per copy and how many copies you need.</p></li>
+          <li><h3>Get an account</h3><p>Sign in to the portal, create API keys and add your registry login if your image is private.</p></li>
+          <li><h3>Deploy</h3><p>Create a deployment from the portal or the API.</p></li>
+          <li><h3>Call your endpoint</h3><p>Send requests to your HTTPS hostname with your API key.</p></li>
+        </ol>
+      </div>
+      <div class="reveal">
+        <span class="eyebrow">FAQ</span>
+        <div style="margin-top:20px">
+          <details open>
+            <summary>What GPUs do you run?</summary>
+            <p>NVIDIA RTX PRO 6000 Blackwell with 96 GB each. Every rack has one server with 8 to 16 of them — 768 GB to 1.5 TB of GPU memory — connected over PCIe.</p>
+          </details>
+          <details>
+            <summary>How large a model can I run?</summary>
+            <p>One copy runs on one server, so up to 16 GPUs and 1.5 TB of GPU memory per copy (more with FP4 weights). Models that span several servers aren't offered yet. Run more copies to serve more traffic.</p>
+          </details>
+          <details>
+            <summary>What happens if a site goes offline?</summary>
+            <p>Copies of your deployment run on different racks, and the gateway sends traffic only to copies that are ready. If a rack drops off, the others keep answering while the scheduler replaces the missing copy.</p>
+          </details>
+          <details>
+            <summary>Do I share servers with other customers?</summary>
+            <p>No. Each buyer gets whole servers, and you only see your own deployments and logs.</p>
+          </details>
+          <details>
+            <summary>How is compute priced?</summary>
+            <p>Pricing depends on your workload. Get in touch and tell us what you need.</p>
+          </details>
+          <details>
+            <summary>What do I need to host a rack?</summary>
+            <p>A dry, covered space with a suitable electrical supply. We provide the hardware and the internet connection, and assess every site before installing.</p>
+          </details>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a href="#top" class="logo"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 28 9v14l-12 7L4 23V9z" fill="none" stroke="#7b3cff" stroke-width="2.4"/><path d="M16 9 22 12.5v7L16 23l-6-3.5v-7z" fill="#7b3cff"/></svg><span>kernel2<b>cloud</b></span></a>
+        <p>A GPU cloud built from racks at many small sites, sold as one pool.</p>
+      </div>
+      <div><h4>Compute</h4><ul><li><a href="#compute">Deployments</a></li><li><a href="#compute">Hardware</a></li><li><a href="#compute">Use cases</a></li><li><a href="#contact">Request compute</a></li></ul></div>
+      <div><h4>Hosts</h4><ul><li><a href="#hosts">Host a rack</a></li><li><a href="#platform">Platform</a></li><li><a href="#hosts">Apply</a></li></ul></div>
+      <div><h4>Company</h4><ul><li><a href="#company">About us</a></li><li><a href="#company">Team</a></li><li><a href="#contact">Contact</a></li></ul></div>
+    </div>
+    <div class="foot-bottom">
+      <span>&copy; <span id="year">2026</span> kernel2cloud, Inc. All rights reserved.</span>
+      <span class="status">Distributed GPU cloud</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+document.documentElement.classList.add('js');
+document.getElementById('year').textContent = new Date().getFullYear();
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// mobile menu
+const menuBtn = document.querySelector('.menu-btn'), menu = document.getElementById('menu');
+menuBtn.addEventListener('click', () => menuBtn.setAttribute('aria-expanded', menu.classList.toggle('open')));
+menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => menu.classList.remove('open')));
+
+// platform tabs
+document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => {
+  document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active'); btn.setAttribute('aria-selected', 'true');
+  document.getElementById(btn.dataset.tab).classList.add('active', 'in');
+}));
+
+// reveal on scroll
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// active nav link
+const navLinks = [...document.querySelectorAll('nav a[href^="#"]:not(.btn)')];
+const navIO = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+}), { rootMargin: '-45% 0px -50% 0px' });
+['compute', 'hosts', 'platform', 'company', 'contact'].forEach(id => navIO.observe(document.getElementById(id)));
+
+// count-up stats
+if (!reduce) document.querySelectorAll('[data-count]').forEach(el => {
+  const end = +el.dataset.count, suf = el.dataset.suffix || '', t0 = performance.now();
+  (function step(t) {
+    const k = Math.min(1, (t - t0) / 1400);
+    el.textContent = Math.round(end * (1 - Math.pow(1 - k, 3))) + suf;
+    if (k < 1) requestAnimationFrame(step);
+  })(t0);
+});
+</script>
+
+<!-- dotted globe: plain 2D canvas, coastlines from Natural Earth (world-atlas land-110m) as a 1° bitmask -->
+<script>
+(function () {
+  const canvas = document.getElementById('globe-canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const MASK = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADg/wEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADA/v8/AOD//z8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD+///D/////5//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAH/j/+//////8PAAAAgB0AAHgAAAAAAD8AAAAAAAAAAAAAAAAAAAAAAAAAAOD//wP8//////8BAACAfx4AAAAAAAAAAP4AAAAAAAAAAAAAAAAAAAAAAAA4+I73//n///////8AAAAAfwAAAAAAAAAAAAAfAAAAAAAAAAAAAAAAAAAAAOAQACDwP4D///////8BAAAAPAQAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAADzAgPP5H8D//////38AAAAAAAAAAAAA4AEAAAD+DwAAAAAAAAAAAAAAAAAAAIC/g7PfBwAA/v////8AAAAAAAAAAADgBwAAwP//PwAA4B8AAAAAAAAAAAAAAAAMAAD8AgAA+P////8AAAAAAAAAAABwAAAA/P//AwAAAAAAAAAAAAAAAAAAAP8Ahvc5OwAA8P///38AAAAAAAAAAAAcAADg////34cHAAcAAAAAAAAAAAAAgN9/xzf8RwAA4P///z8AAAAAAAAAAAAPAB7g//////8fgB8AAAAAAT4AAAAAAO//B3f8/wsA4P///z8AAAAAAAAAAAAPAG////////8f2f8HAAAAAAD4HwAAAAD8H/D4/38A4P///xMAAAAAAPAHAAAAgN//////////////DwAAAAD+///h/4//H+/Bg/8BwP7//w8AAAAAwP8fAAAAj9///////////////88//h8AAAAAAAD8+Dsw+AH//wAAAP//////DwAA/P8cgEEAAAAAAAAAAAAAAAAA8P8AAAAAAAAAAAAQeAbwPwAA+P//////AwAA4AwAAGAAAAAAAAAAAAAAAAAAIH4DAAAAAAAAAAAA/gPAfwAA/v//////AQBg4AAAABAAAAAAAAAAAAAAAAAAAQ8AAAAAAAAAAACg/wPnfwDw/x/A////AByADwAAAAAAAAAAAAAAAAAAAAAAQID4///////////Pw/0DAP8HAMAfAACA//F//v////////////////////8/AAP4///////////BBPAHAP4HAAAAAADg//z///////////////////////9/AID///////////8AQ8ABAPwBAAAAAAD8P/7///////////////////////9fAMD//////////z8AwA8AAPgBAAAAAAD+H/7/////////////////////Of8BAID///z//////z8AwD8AAMABAAAAAAD+P/z///////////////////9/wH8AAAD8MwD//////x8AwH8MAAAAAAAAAAD+P2D///////////////////95cAAAAACAAwD8/////38AwP8eAAAAAAAAgAGcH/D//////////////////wEAOAAAAADADgDA/////38AgP8/AAAAAAAAwANAH/T//////////////////wAAfgAAAAAwAAAA//////8PgP8/AAAAAAAAwAFwD/7/////////////////PwAAfwAAAAAGAAAA//////8/wP//AAAAAAAAwAOwA/7/////////////////DwCAPwAAAIAAAAAA/v//////8///BwAAAAAAOAcgcP//////////////////HwAAHwAAAAAAAACA+P//////4///DwAAAAAAOA74/////////////////////wUADwAAAAAAAAAA8P//////4///DwAAAAAAGD///////////////////////wUAAwAAAAAAAAAA8P//////7///FwAAAAAAAB///////////////////////wUAAgAAAAAAAAAA0P//////////CAAAAAAAgOH//////////////////////w0AAAAAAAAAAAAAYP////////8xLAAAAAAAAPz//////////////////////wwAAAAAAAAAAAAAAP7//////38HfgAAAAAAgP///////////////////////wQAAAAAAAAAAAAAAP3///////8HUAAAAAAAAP7/////////////////////fwQAAAAAAAAAAAAAAP////////+XAAAAAAAAAPz///93/D/+////////////PwwAAAAAAAAAAAAAAP////////9/AAAAAAAAAPj//f9j/g/+////////////HwAAAAAAAAAAAAAAAP////////8MAAAAAAAAAPj/+P8B/Mf/////////////DwQAAAAAAAAAAAAAAP///////z8AAAAAAAAAcPzH8/8A8I//////////////Bx4AAAAAAAAAAAAAAP///////x8AAAAAAAAA+H+Aw/8AwA/+//////////9/AA8AAAAAAAAAAAAAAP///////x8AAAAAAAAA+D8Aj//w4R/8//////////8/AAAAAAAAAAAAAAAAAP///////wMAAAAAAAAA+B8wuE/+/z/+/////////98fAAMAAAAAAAAAAAAAAP///////wMAAAAAAAAA+A8wEMf//x/+/////////0cOAAMAAAAAAAAAAAAAAP7//////wEAAAAAAAAA+A8AAI7//x/8/////////wMOAAEAAAAAAAAAAAAAAP7//////wAAAAAAAAAA+AcABob//z/8/////////zccwAEAAAAAAAAAAAAAAPz//////wAAAAAAAAAAQOB/AAQ2/////////////x8c8AEAAAAAAAAAAAAAAPj//////wAAAAAAAAAAQPx/AAAA/////////////w8Y/gEAAAAAAAAAAAAAAPD/////fwAAAAAAAAAA4P8/AAAA/////////////w+EGwAAAAAAAAAAAAAAAMD/////HwAAAAAAAAAA8P9/AACA/////////////x/AAwAAAAAAAAAAAAAAAID/////DwAAAAAAAAAA+P//BwaA/////////////x/AAAAAAAAAAAAAAAAAAID9////BwAAAAAAAAAA/P//D3+E/////////////z9AAAAAAAAAAAAAAAAAAAD5////BwAAAAAAAAAA/P//f////////////////x8AAAAAAAAAAAAAAAAAAADy/x8GBgAAAAAAAAAA/P/////v/8///////////z8AAAAAAAAAAAAAAAAAAAD0/w8ABgAAAAAAAAAA/v////+//4///////////z8AAAAAAAAAAAAAAAAAAADu/wcADgAAAAAAAACA//////8f/x/+/////////x8AAAAAAAAAAAAAAAAAAACI/wcALAAAAAAAAADA//////8//z/g/////////w8AAAAAAAAAAAAAAAAAAACQ/wcACAAAAAAAAADg//////9//r+A/////////wcAAAAAAAAAAAAAAAAAAAAQ/wMAAAAAAAAAAADg//////9//n8cgP///////ycAAAAAAAAAAAAAAAAAAAAA/gMAAAAAAAAAAADw////////+P9/AP///////xEAAAAAAAAAAAAAAAAAAAAA/AMAHQAAAAAAAADw////////+P//APz/f///fxAAAAAAAAAAAAAAAAAAAAAA+AcAYAAAAAAAAAD4////////+f9/APz/B///BgAAAAAAAAAAAAAAAAAAAAAA/AccgAEAAAAAAADw////////8f9/AOD/B/5/AAAAAAAAAAAAAAAAAQAAAAAA+A8eADgAAAAAAADw////////4f8/AOD/Afw/BgAAAAAAAAAAAAAAAAAAAAAA8J8PAPwCAAAAAADw////////4/8fAOD/APw/AgAAAAAAAAAAAAAAAAAAAAAAgP8PAAAAAAAAAADw////////x/8HAOB/APx/ADAAAAAAAAAAAAAAAAAAAAAAAP4PAAAAAAAAAAD4////////h/8BAOA/APz/ADAAAAAAAAAAAAAAAAAAAAAAAID/AAAAAAAAAAD4////////j/8AAMAPAMD/ATAAAAAAAAAAAAAAAAAAAAAAAAD/AQAAAAAAAAD4////////nx8AAMAPAMD/ATAAAAAAAAAAAAAAAAAAAAAAAAD8AAAAAAAAAAD4////////vwcAAIAPAMD/AcAAAAAAAAAAAAAAAAAAAAAAAADgAQAAAAAAAAD4////////fwAAAIAPAMD8AQABAAAAAAAAAAAAAAAAAAAAAADAAAgAAAAAAADw////////f2AAAAAPAID4AUACAAAAAAAAAAAAAAAAAAAAAADAAe9zAAAAAADg/////////34AAAAPAEBwAAgAAAAAAAAAAAAAAAAAAAAAAAAAE+9/AAAAAADA/////////38AAAAXAEAgAAQCAAAAAAAAAAAAAAAAAAAAAAAAz///AAAAAACA/////////z8AAAASAMAAAIACAAAAAAAAAAAAAAAAAAAAAAAAyP//AQAAAACA/////////z8AAAAwAIAAAEAHAAAAAAAAAAAAAAAAAAAAAAAAgP//AwAAAAAA/v///////x8AAAAwAAADAAMBAAAAAAAAAAAAAAAAAAAAAAAAwP//fwAAAAAA/A/+/////x8AAAAAAAAHAAcAAAAAAAAAAAAAAAAAAAAAAAAAgP///wAAAAAAEAD8/////w8AAAAAADAGwAcAAAAAAAAAAAAAAAAAAAAAAAAAgP///wEAAAAAAADA/////wcAAAAAAGAG4AEAAAAAAAAAAAAAAAAAAAAAAAAA4P///wEAAAAAAADA/////wMAAAAAAMAM+AMAAAAAAAAAAAAAAAAAAAAAAAAA4P///wMAAAAAAADg/////wEAAAAAAIAL/gMQAAAAAAAAAAAAAAAAAAAAAAAA8P///wMAAAAAAADg////fwAAAAAAAIAH/vMQAAAAAAAAAAAAAAAAAAAAAAAA8P///wcAAAAAAADg////PwAAAAAAAAAP/gMAAQAAAAAAAAAAAAAAAAAAAAAA+P///38AAAAAAADg////PwAAAAAAAAAO/DmAAwAAAAAAAAAAAAAAAAAAAAAA+P///38BAAAAAADA////HwAAAAAAAAA+/DkA8gAAAAAAAAAAAAAAAAAAAAAA8P////8fAAAAAACA////DwAAAAAAAAA8wChE/gcAAAAAAAAAAAAAAAAAAAAA+P////8/AAAAAACA////BwAAAAAAAAA4AEAA8B8AAAAAAAAAAAAAAAAAAAAA+P//////AQAAAAAA////BwAAAAAAAAAwAEAAxD8NAAAAAAAAAAAAAAAAAAAA+P//////AQAAAAAA////BwAAAAAAAADAAQAAxP+AAAAAAAAAAAAAAAAAAAAA8P//////AQAAAAAA/v//BwAAAAAAAACAHwAAwH8ABAAAAAAAAAAAAAAAAAAA4P//////AQAAAAAA/v//BwAAAAAAAAAAQFYEAMcAAAAAAAAAAAAAAAAAAAAA4P//////AAAAAAAA/v//DwAAAAAAAAAAAAgBAIABMAAAAAAAAAAAAAAAAAAAwP//////AAAAAAAA/v//DwAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAgP////9/AAAAAAAA/P//DwAAAAAAAAAAAAAAAQQAAAAAAAAAAAAAAAAAAAAAgP////8/AAAAAAAA/v//HyAAAAAAAAAAAACAHwQAAAAAAAAAAAAAAAAAAAAAAP////8fAAAAAAAA/v//HyAAAAAAAAAAAADADwwAAAAAAAAAAAAAAAAAAAAAAP////8fAAAAAAAA////HzAAAAAAAAAAAADsDxwAAAAAAAAAAAAAAAAAAAAAAP7///8fAAAAAAAA////DzgAAAAAAAAAAAD/DxwAAAAA/////////////////wcAAADg////////AAAA8MD///////////8AwMH///d/AAAAAAAAAAAAAAAAAOD///8fAAAAAAAA////Ax8AAAAAAAAAAMD//z4AAABAAAAAAAAAAAAAAAAAAMD///8PAAAAAAAA////AB8AAAAAAAAAAMD//z8AAAAAAAAAAAAAAAAAAAAAAMD///8PAAAAAAAA/v9/AB8AAAAAAAAAAOD//38AAAAAAAAAAAAAAAAAAAAAAMD///8PAAAAAAAA/v9/AB8AAAAAAAAAAPz///8BAAEAAAAAAAAAAAAAAAAAAMD///8HAAAAAAAA/P9/gA8AAAAAAAAAgP////8BAAIAAAAAAAAAAAAAAAAAAMD///8DAAAAAAAA/P//gA8AAAAAAAAAwP////8DAAAAAAAAAAAAAAAAAAAAAMD//38AAAAAAAAA/P9/AA8AAAAAAAAAwP////8HAAAAAAAAAAAAAAAAAAAAAOD//x8AAAAAAAAA+P9/AAcAAAAAAAAA4P////8PAAAAAAAAAAAAAAAAAAAAAOD//w8AAAAAAAAA+P8fAAIAAAAAAAAAwP////8fAAAAAAAAAAAAAAAAAAAAAOD//wcAAAAAAAAA+P8fAAAAAAAAAAAA4P////8fAAAAAAAAAAAAAAAAAAAAAOD//wcAAAAAAAAA+P8fAAAAAAAAAAAAwP////8fAAAAAAAAAAAAAAAAAAAAAOD//wcAAAAAAAAA8P8PAAAAAAAAAAAAgP////8/AAAAAAAAAAAAAAAAAAAAAOD//wMAAAAAAAAA4P8HAAAAAAAAAAAAgP////8fAAAAAAAAAAAAAAAAAAAAAPD//wMAAAAAAAAA4P8HAAAAAAAAAAAAgP////8fAAAAAAAAAAAAAAAAAAAAAPD//wEAAAAAAAAAwP8DAAAAAAAAAAAAAP////8fAAAAAAAAAAAAAAAAAAAAAOD//wAAAAAAAAAAwP8BAAAAAAAAAAAAAP8D/P8PAAAAAAAAAAAAAAAAAAAAAPD/fwAAAAAAAAAAwH8AAAAAAAAAAAAAgP8A2P8HAAAAAAAAAAAAAAAAAAAAAPD/OwAAAAAAAAAAgAEAAAAAAAAAAAAAAAcA6P8HAAAAAAAAAAAAAAAAAAAAAPj/BwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwP8DAAACAAAAAAAAAAAAAAAAAPj/BwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8DAAAEAAAAAAAAAAAAAAAAAPz/BwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8DAAAIAAAAAAAAAAAAAAAAAPj/AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGgAAAA4AAAAAAAAAAAAAAAAAPg/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAAAAPw/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAPwHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAAAAALAAAAAAAAAAAAAAAAAPwfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAAAIADAAAAAAAAAAAAAAAAAPgHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAMABAAAAAAAAAAAAAAAAAPwHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHAAAAAAAAAAAAAAAAAAAP4BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHgAAAAAAAAAAAAAAAAAAP4BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAP4DAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH6AAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAOAAAAAAAAAAAAAAAAAIAfAAAAAAAeeADADwAAAAAAAAAAAAAAAAAAAAAAAAAHAAAAAAAAAAAAAAAAAPD/AADA/////////z8AAAAAAAAAAAAAAAAAAAAAAAAHAAAAAAAAAAAAAAAAgP///wH4//////////8DAAAAAAAAAAAAAAAAAAAAADAfAAAAAAAAAAAAAADw8////wP+////////////AwAAAAAAAAAAAAAAAAAAAHA/AAAAAAAAAAA8//P//////+D/////////////HwAAAAAAAAAAAAAAAAAAAP5+AAAAAAAA5v////////////D//////////////38AAAAAAAAAAAAAAAAAAAB+AAAAAACA/////////////////////////////38AAAAAAAAAYAYA4ON/OPh/AAAAAADw/////////////////////////////x8AAAAAAADwv/MXgP////8fAAAAAADw/////////////////////////////wMAAAAAAPz///////////8HAAAAAAD+/////////////////////////////wAAAAAAAPz//////////z8AAAAAAP///////////////////////////////wAAAADA/////////////wEAAAAA8P///////////////////////////////wAAAACH////////////PwAAAPgA/////////////////////////////////wcAAAAcgP//////////fwAAAP4BwP//////////////////////////////HwAAAAAAAP7//////////wf8wD8AwP//////////////////////////////DwAAAAAA/v////////////8HAAD4////////////////////////////////HwAAAAAA+P//////////////4f///////////////////////////////////wAAAAAA/P///////////////////////////////////////////////////x8A3x8AAP7/////////////////////////////////////////////fwAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+  const raw = atob(MASK), bits = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) bits[i] = raw.charCodeAt(i);
+  const isLand = (lat, lon) => {
+    const row = Math.min(179, Math.max(0, Math.floor(90 - lat))), col = Math.min(359, Math.max(0, Math.floor(lon + 180)));
+    const i = row * 360 + col;
+    return (bits[i >> 3] >> (i & 7)) & 1;
+  };
+  const RAD = Math.PI / 180;
+  const vec = (lat, lon) => [Math.cos(lat * RAD) * Math.sin(lon * RAD), Math.sin(lat * RAD), Math.cos(lat * RAD) * Math.cos(lon * RAD)];
+
+  // land dots on an even (Fibonacci) spread over the sphere
+  const dots = [], N = 11000, golden = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < N; i++) {
+    const y = 1 - (i + 0.5) * 2 / N, r = Math.sqrt(1 - y * y), a = i * golden;
+    const x = Math.cos(a) * r, z = Math.sin(a) * r;
+    const lat = Math.asin(y) / RAD, lon = Math.atan2(x, z) / RAD;
+    if (isLand(lat, lon)) dots.push([x, y, z]);
+  }
+
+  // illustrative rack sites, and links from each to the nearest "hub"
+  const sites = [[12.97, 77.59], [17.39, 78.49], [19.08, 72.88], [28.61, 77.21], [22.57, 88.36], [13.08, 80.27],
+                 [37.43, -121.9], [47.61, -122.33], [30.27, -97.74], [40.71, -74.0], [41.88, -87.63], [34.05, -118.24]].map(([a, b]) => vec(a, b));
+  const links = [[0, 1], [0, 5], [1, 3], [2, 3], [3, 4], [6, 7], [6, 11], [6, 8], [8, 10], [10, 9]];
+  const arcPts = links.map(([a, b]) => {
+    const p = sites[a], q = sites[b], pts = [];
+    const dot = p[0] * q[0] + p[1] * q[1] + p[2] * q[2], w = Math.acos(Math.min(1, dot));
+    const lift = 0.08 + w * 0.12;
+    for (let k = 0; k <= 40; k++) {
+      const t = k / 40, s1 = Math.sin((1 - t) * w) / Math.sin(w), s2 = Math.sin(t * w) / Math.sin(w);
+      const h = 1 + Math.sin(Math.PI * t) * lift;
+      pts.push([(p[0] * s1 + q[0] * s2) * h, (p[1] * s1 + q[1] * s2) * h, (p[2] * s1 + q[2] * s2) * h]);
+    }
+    return pts;
+  });
+
+  let w = 0, R = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
+  let phi = -1.7, theta = 0.32, drag = null, dragPhi = 0, vel = 0, t0 = performance.now(), running = true;
+  function size() {
+    w = canvas.clientWidth; R = w * 0.44;
+    canvas.width = w * dpr; canvas.height = w * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function rot(v, p) {
+    const cp = Math.cos(p), sp = Math.sin(p), ct = Math.cos(theta), st = Math.sin(theta);
+    const x = v[0] * cp + v[2] * sp, z = -v[0] * sp + v[2] * cp;
+    return [x, v[1] * ct - z * st, v[1] * st + z * ct];
+  }
+  function draw(now) {
+    const p = phi + dragPhi, c = w / 2;
+    ctx.clearRect(0, 0, w, w);
+    // sphere body
+    const g = ctx.createRadialGradient(c - R * 0.35, c - R * 0.4, R * 0.1, c, c, R);
+    g.addColorStop(0, '#ffffff'); g.addColorStop(1, '#f1ecff');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(c, c, R, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#ddd0ff'; ctx.lineWidth = 1; ctx.stroke();
+    // land
+    const ds = Math.max(1.8, R / 115);
+    for (const d of dots) {
+      const v = rot(d, p);
+      if (v[2] <= 0) continue;
+      ctx.globalAlpha = 0.35 + v[2] * 0.65;
+      ctx.fillStyle = '#5a5470';
+      ctx.fillRect(c + v[0] * R - ds / 2, c - v[1] * R - ds / 2, ds, ds);
+    }
+    ctx.globalAlpha = 1;
+    // links
+    const flow = ((now - t0) / 1600) % 1;
+    ctx.lineWidth = 1.4;
+    for (const pts of arcPts) {
+      ctx.strokeStyle = 'rgba(123,60,255,.55)'; ctx.setLineDash([4, 4]); ctx.beginPath();
+      let on = false, head = null;
+      pts.forEach((pt, k) => {
+        const v = rot(pt, p), x = c + v[0] * R, y = c - v[1] * R;
+        if (v[2] > -0.05) { on ? ctx.lineTo(x, y) : ctx.moveTo(x, y); on = true; if (k === Math.round(flow * 40)) head = [x, y]; }
+        else on = false;
+      });
+      ctx.stroke(); ctx.setLineDash([]);
+      if (head) { ctx.fillStyle = '#7b3cff'; ctx.beginPath(); ctx.arc(head[0], head[1], 2.4, 0, Math.PI * 2); ctx.fill(); }
+    }
+    // sites
+    const pulse = ((now - t0) / 2000) % 1;
+    for (const s of sites) {
+      const v = rot(s, p);
+      if (v[2] <= 0) continue;
+      const x = c + v[0] * R, y = c - v[1] * R;
+      ctx.strokeStyle = `rgba(123,60,255,${0.5 * (1 - pulse)})`; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(x, y, 4 + pulse * 12, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#7b3cff'; ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  function tick(now) {
+    if (!running) return;
+    if (drag === null) { phi += 0.0025 + vel; vel *= 0.94; }
+    draw(now);
+    requestAnimationFrame(tick);
+  }
+  size(); draw(performance.now()); canvas.classList.add('ready');
+  new ResizeObserver(() => { size(); draw(performance.now()); }).observe(canvas);
+  canvas.addEventListener('pointerdown', e => { drag = e.clientX; canvas.setPointerCapture(e.pointerId); canvas.style.cursor = 'grabbing'; });
+  canvas.addEventListener('pointermove', e => { if (drag !== null) { dragPhi = (e.clientX - drag) / R; if (reduce) draw(performance.now()); } });
+  const end = () => { if (drag === null) return; phi += dragPhi; vel = dragPhi * 0.02; dragPhi = 0; drag = null; canvas.style.cursor = 'grab'; };
+  canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
+  if (reduce) return;
+  // only animate while the globe is on screen
+  new IntersectionObserver(([e]) => { const was = running; running = e.isIntersecting; if (running && !was) requestAnimationFrame(tick); }).observe(canvas);
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
