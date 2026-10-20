@@ -665,7 +665,7 @@ curl https://chat-acme.apps.kernel2cloud.ai/v1/models \
     <div class="grid g3">
       <div class="card reveal"><span class="num">01</span><div class="ico"><svg viewBox="0 0 24 24"><path d="M3 11 12 4l9 7v9H3z"/><path d="M9 20v-6h6v6"/></svg></div><h3>We bring the rack</h3><p>A compact rack — one control-plane server and one GPU server — delivered and installed by our team.</p></div>
       <div class="card reveal"><span class="num">02</span><div class="ico"><svg viewBox="0 0 24 24"><path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M2 9a15 15 0 0 1 20 0"/><circle cx="12" cy="19.5" r="1"/></svg></div><h3>We bring the internet</h3><p>Kernel2Cloud provides each rack's own connection, separate from your home network.</p></div>
-      <div class="card reveal"><span class="num">03</span><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h3>We run it remotely</h3><p>Health, temperature and faults are watched around the clock. You never touch the software.</p></div>
+      <div class="card reveal"><span class="num">03</span><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h3>We run it remotely</h3><p>Health, temperature and faults are monitored continuously and reported to our operations console. You never touch the software.</p></div>
     </div>
     <div class="callout reveal">
       <p><b>Have space for a rack?</b> Tell us where you are and what space and power you have, and we'll follow up.</p>
@@ -721,8 +721,8 @@ curl https://chat-acme.apps.kernel2cloud.ai/v1/models \
         <span class="lbl">What we do with it</span>
         <ul>
           <li>GPU health alerts straight from DCGM telemetry</li>
-          <li>Servers with problems are cordoned and drained, and their copies move elsewhere</li>
-          <li>When a site loses power or cooling, the pool shrinks instead of failing</li>
+          <li>When a server goes down, its copies are started on other servers automatically</li>
+          <li>When a site goes offline, the pool shrinks instead of failing: its copies move to other sites</li>
           <li>All rack metrics are kept centrally for every site</li>
         </ul>
       </div>
@@ -741,10 +741,10 @@ curl https://chat-acme.apps.kernel2cloud.ai/v1/models \
     <div class="tab-panel" id="t3" role="tabpanel">
       <div>
         <h3>Security for untrusted places</h3>
-        <p>A rack in a backyard has to protect itself, so security starts at boot.</p>
+        <p>A rack in a backyard has to protect itself.</p>
         <span class="lbl">Layers</span>
         <ul>
-          <li>Immutable operating-system image on every server, with secure boot and TPM</li>
+          <li>Immutable operating-system image on every server</li>
           <li>New racks register themselves and wait for an operator's approval</li>
           <li>Whole servers per buyer, on hardened Kubernetes</li>
           <li>Endpoints only answer requests carrying the buyer's API key</li>
@@ -759,7 +759,7 @@ curl https://chat-acme.apps.kernel2cloud.ai/v1/models \
           <rect class="la f-w" x="134" y="92" width="32" height="26" rx="4"/>
           <path class="la" d="M140 92v-8a10 10 0 0 1 20 0v8"/>
           <circle class="f-b" cx="150" cy="105" r="3"/>
-          <text class="svg-t" x="150" y="212" text-anchor="middle">secure boot · TPM · approval</text>
+          <text class="svg-t" x="150" y="212" text-anchor="middle">immutable OS · approval</text>
         </svg>
       </div>
     </div>
