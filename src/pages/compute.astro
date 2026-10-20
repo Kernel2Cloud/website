@@ -1,0 +1,30 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Simulator from '../components/Simulator.astro';
+import Compute from '../components/sections/Compute.astro';
+import { breadcrumb } from '../lib/seo';
+---
+<Base
+  title="Rent GPU Compute — RTX PRO 6000 Blackwell Endpoints | Kernel2Cloud"
+  description="Bring a container image and get an HTTPS endpoint on NVIDIA RTX PRO 6000 Blackwell GPUs. Up to 16 GPUs per copy, copies spread across racks."
+  current="compute"
+  jsonLd={[breadcrumb(['Compute', '/compute/'])]}
+>
+  <PageHero eyebrow="For AI teams" crumb="Compute" art="compute"
+    title='Ship a container, <span class="accent grad">get an endpoint</span>'
+    lead="Tell us the image, the port, how many GPUs each copy needs and how many copies to run. We handle placement, health and rollouts.">
+    <Fragment slot="actions">
+      <a href="/contact/" class="btn">Request GPU compute <span class="arrow">→</span></a>
+      <a href="#deploy" class="btn btn-line">See how it places</a>
+    </Fragment>
+  </PageHero>
+  <section class="sec" id="deploy">
+    <div class="wrap">
+      <Simulator />
+      <Compute />
+    </div>
+  </section>
+  <CtaBand />
+</Base>

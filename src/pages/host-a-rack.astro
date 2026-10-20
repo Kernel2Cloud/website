@@ -1,0 +1,34 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Hosts from '../components/sections/Hosts.astro';
+import { breadcrumb } from '../lib/seo';
+---
+<Base
+  title="Host a GPU Rack on Your Property | Kernel2Cloud"
+  description="Give a Kernel2Cloud GPU rack a home in your backyard, garage or outbuilding. We bring the hardware and the internet, install it and run it remotely."
+  current="hosts"
+  jsonLd={[breadcrumb(['Host a rack', '/host-a-rack/'])]}
+>
+  <PageHero eyebrow="For property owners" crumb="Host a rack" art="hosts"
+    title='Give a rack <span class="accent grad">a home</span>'
+    lead="Our racks live in backyards, garages and outbuildings, spread out so no two sites are near each other. If you have the space, we'd like to hear from you.">
+    <Fragment slot="actions">
+      <a href="mailto:connect@kernel2cloud.ai?subject=Hosting%20a%20rack&body=Location%20(city%2C%20region)%3A%0ASpace%20(backyard%2C%20garage%2C%20outbuilding)%3A%0AElectrical%20supply%3A%0A" class="btn">Apply to host <span class="arrow">→</span></a>
+      <a href="#how" class="btn btn-line">How it works</a>
+    </Fragment>
+  </PageHero>
+  <section class="sec" id="how">
+    <div class="wrap">
+      <ol class="timeline" style="margin-bottom:48px">
+        <li class="reveal"><h3>Apply</h3><p>Tell us where you are and what space and power you have.</p></li>
+        <li class="reveal"><h3>Site assessment</h3><p>We assess every site before installing anything.</p></li>
+        <li class="reveal"><h3>Install</h3><p>Our team delivers and installs the rack and its internet connection.</p></li>
+        <li class="reveal"><h3>Run remotely</h3><p>We monitor and maintain it from our operations console.</p></li>
+      </ol>
+      <Hosts />
+    </div>
+  </section>
+  <CtaBand />
+</Base>

@@ -1,0 +1,25 @@
+---
+const { current = '' } = Astro.props;
+const links = [
+  { key: 'compute', href: '/compute/', label: 'Compute' },
+  { key: 'hosts', href: '/host-a-rack/', label: 'Host a rack' },
+  { key: 'platform', href: '/platform/', label: 'Platform' },
+  { key: 'company', href: '/company/', label: 'Company' },
+  { key: 'blog', href: '/blog/', label: 'Blog' },
+];
+---
+<header>
+  <div class="wrap nav">
+    <a href="/" class="logo" aria-label="Kernel2Cloud home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 28 9v14l-12 7L4 23V9z" fill="none" stroke="#7b3cff" stroke-width="2.4"/><path d="M16 9 22 12.5v7L16 23l-6-3.5v-7z" fill="#7b3cff"/></svg>
+      <span>kernel2<b>cloud</b></span>
+    </a>
+    <button class="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="menu">☰</button>
+    <nav aria-label="Main">
+      <ul id="menu">
+        {links.map((l) => <li><a href={l.href} class:list={{ active: current === l.key }} aria-current={current === l.key ? 'page' : undefined}>{l.label}</a></li>)}
+        <li><a href="/contact/" class="btn">Get started <span class="arrow">→</span></a></li>
+      </ul>
+    </nav>
+  </div>
+</header>

@@ -1,0 +1,80 @@
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <p class="tagline"><b>New</b> Distributed GPU cloud</p>
+        <h1><span class="ln"><span>AI compute from</span></span> <span class="ln"><span>racks in your</span></span> <span class="ln"><span class="accent">neighbourhood</span></span></h1>
+        <p class="lead">Run your models on NVIDIA RTX PRO 6000 Blackwell GPUs spread across many small sites — sold as one pool. One deployment, one HTTPS endpoint, one usage figure.</p>
+        <div class="hero-cta">
+          <a href="/compute/" class="btn">Rent GPU compute <span class="arrow">→</span></a>
+          <a href="/host-a-rack/" class="btn btn-line">Host a rack</a>
+        </div>
+      </div>
+      <div class="hero-viz">
+        <div class="viz-bar"><span>kernel2cloud · one pool</span><span class="live">all sites reporting</span></div>
+        <div class="globe-box">
+          <div class="globe-wrap">
+            <canvas id="globe-canvas" aria-label="Rotating globe with rack sites"></canvas>
+            <svg class="fallback" viewBox="0 0 400 400" aria-hidden="true">
+              <circle cx="200" cy="200" r="180" fill="#fff" stroke="#ddd0ff" stroke-width="1.5"/>
+              <g class="la-m" stroke-dasharray="2 5">
+                <ellipse cx="200" cy="200" rx="60" ry="180"/><ellipse cx="200" cy="200" rx="120" ry="180"/>
+                <ellipse cx="200" cy="200" rx="180" ry="60"/><ellipse cx="200" cy="200" rx="180" ry="120"/>
+                <path d="M20 200h360M200 20v360"/>
+              </g>
+              <g class="f-b"><circle cx="150" cy="150" r="5"/><circle cx="260" cy="190" r="5"/><circle cx="220" cy="270" r="5"/><circle cx="120" cy="240" r="5"/></g>
+            </svg>
+          </div>
+          <div class="globe-tag t1"><b>rack · backyard</b> online</div>
+          <div class="globe-tag t2">chat-acme.apps <b>200 OK</b></div>
+          <div class="globe-tag t3">copies ready <b>3 / 3</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="hud-strip reveal">
+            <div class="hud">
+<span class="lbl">Rack</span>
+          <div class="mini">
+            <div class="row"><b>rack-03</b><span class="ok">healthy</span></div>
+            <small>8 / 8 GPUs healthy</small>
+            <div class="bars"><span style="--h:82%"></span><span style="--h:76%"></span><span style="--h:90%"></span><span style="--h:68%"></span><span style="--h:85%"></span><span style="--h:72%"></span><span style="--h:88%"></span><span style="--h:79%"></span></div>
+          </div>
+            </div>
+            <div class="hud">
+<span class="lbl">Hardware</span>
+          <div class="mini">
+            <div class="row"><small>GPU</small><span>RTX PRO 6000</span></div>
+            <div class="row"><small>memory</small><span>8–16 × 96 GB</span></div>
+            <div class="row"><small>link</small><span>PCIe</span></div>
+          </div>
+            </div>
+            <div class="hud">
+<span class="lbl">Deployment</span>
+          <div class="mini">
+            <div class="row"><b>chat</b><span class="ok">live</span></div>
+            <small>chat-acme.apps.kernel2cloud.ai</small>
+          </div>
+          <div class="mini">
+            <div class="row"><small>copies ready</small><b>3 / 3</b></div>
+            <div class="row"><small>GPUs per copy</small><span>2</span></div>
+          </div>
+            </div>
+            <div class="hud">
+<span class="lbl">GPU usage</span>
+          <div class="mini">
+            <small>GPU-hours, hourly</small>
+            <svg class="spark" viewBox="0 0 200 40" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M0 30 L20 26 L40 28 L60 18 L80 20 L100 12 L120 16 L140 8 L160 12 L180 6 L200 9 L200 40 L0 40Z" fill="#f3edff"/>
+              <path d="M0 30 L20 26 L40 28 L60 18 L80 20 L100 12 L120 16 L140 8 L160 12 L180 6 L200 9" fill="none" stroke="#7b3cff" stroke-width="2"/>
+            </svg>
+          </div>
+            </div>
+          </div>
+    <div class="stats">
+        <div class="stat"><strong>8–16</strong><span>GPUs per server</span></div>
+        <div class="stat"><strong data-count="96" data-suffix=" GB">96 GB</strong><span>Per GPU</span></div>
+        <div class="stat"><strong>1.5 TB</strong><span>GPU memory per server, max</span></div>
+        <div class="stat"><strong>1</strong><span>Endpoint</span></div>
+      </div>
+  </div>
+</section>

@@ -1,0 +1,85 @@
+---
+const racks = ['Site A', 'Site B', 'Site C', 'Site D'];
+---
+<div class="sim reveal" id="sim">
+  <div class="sim-ctl">
+    <span class="eyebrow">Try it</span>
+    <h3>Place a deployment across racks</h3>
+    <p>Pick how many GPUs each copy needs and how many copies to run. Click a site to take it offline and watch its copies move.</p>
+    <label>GPUs per copy <output id="sim-g-out">2</output>
+      <input id="sim-g" type="range" min="0" max="4" step="1" value="1" aria-describedby="sim-note" />
+      <span class="ticks"><i>1</i><i>2</i><i>4</i><i>8</i><i>16</i></span>
+    </label>
+    <label>Copies <output id="sim-c-out">3</output>
+      <input id="sim-c" type="range" min="1" max="8" step="1" value="3" />
+    </label>
+    <dl class="sim-out" aria-live="polite">
+      <div><dt>GPUs in use</dt><dd id="sim-gpus">6</dd></div>
+      <div><dt>GPU memory</dt><dd id="sim-mem">576 GB</dd></div>
+      <div><dt>Copies ready</dt><dd id="sim-ready">3 / 3</dd></div>
+    </dl>
+    <pre class="sim-json" id="sim-json" aria-label="Deployment spec"></pre>
+    <p class="note" id="sim-note">Illustrative: four sites shown with 16 GPUs each. Real servers have 8–16 GPUs.</p>
+  </div>
+  <div class="sim-racks">
+    {racks.map((r, i) => (
+      <button type="button" class="srack" data-rack={i} aria-pressed="false" aria-label={`${r}: click to take offline`}>
+        <span class="srack-head"><b>{r}</b><span class="srack-state">online</span></span>
+        <span class="cells">{Array.from({ length: 16 }).map(() => <i></i>)}</span>
+        <span class="srack-foot"></span>
+      </button>
+    ))}
+  </div>
+</div>
+
+<script>
+  const root = document.getElementById('sim');
+  if (root) {
+    const G = [1, 2, 4, 8, 16];
+    const COLORS = ['#7b3cff', '#12b886', '#e8590c', '#1c7ed6', '#c2255c', '#f59f00', '#5d22e0', '#0b8a63'];
+    const $ = (id: string) => document.getElementById(id)!;
+    const racks = [...root.querySelectorAll<HTMLElement>('.srack')];
+    const online = racks.map(() => true);
+    const gIn = $('sim-g') as HTMLInputElement, cIn = $('sim-c') as HTMLInputElement;
+
+    function render() {
+      const g = G[+gIn.value], copies = +cIn.value;
+      $('sim-g-out').textContent = String(g); $('sim-c-out').textContent = String(copies);
+      const free = racks.map((_, i) => (online[i] ? 16 : 0));
+      const used = racks.map(() => [] as number[][]);          // per rack: list of copy -> cell ids
+      const perRack = racks.map(() => 0);
+      let placed = 0;
+      for (let c = 0; c < copies; c++) {
+        // spread: fewest copies of this deployment first, then most free GPUs
+        let best = -1;
+        for (let i = 0; i < racks.length; i++) {
+          if (!online[i] || free[i] < g) continue;
+          if (best < 0 || perRack[i] < perRack[best] || (perRack[i] === perRack[best] && free[i] > free[best])) best = i;
+        }
+        if (best < 0) continue;
+        const start = 16 - free[best];
+        used[best].push([c, start, start + g]);
+        free[best] -= g; perRack[best]++; placed++;
+      }
+      racks.forEach((el, i) => {
+        el.classList.toggle('off', !online[i]);
+        el.setAttribute('aria-pressed', String(!online[i]));
+        el.querySelector('.srack-state')!.textContent = online[i] ? 'online' : 'offline';
+        const cells = el.querySelectorAll<HTMLElement>('.cells i');
+        cells.forEach((cell) => { cell.style.removeProperty('--c'); cell.classList.remove('on'); });
+        for (const [c, a, b] of used[i]) for (let k = a; k < b; k++) { cells[k].style.setProperty('--c', COLORS[c % COLORS.length]); cells[k].classList.add('on'); }
+        el.querySelector('.srack-foot')!.textContent = online[i] ? `${perRack[i]} cop${perRack[i] === 1 ? 'y' : 'ies'} · ${16 - free[i]} / 16 GPUs` : 'copies moved to other sites';
+      });
+      $('sim-gpus').textContent = String(placed * g);
+      $('sim-mem').textContent = `${placed * g * 96} GB`;
+      const r = $('sim-ready'); r.textContent = `${placed} / ${copies}`; r.classList.toggle('warn', placed < copies);
+      $('sim-json').textContent = `{\n  "gpus_per_replica": ${g},\n  "replicas": ${copies}\n}` + (placed < copies ? `\n// ${copies - placed} pending: not enough free GPUs` : '');
+    }
+    gIn.addEventListener('input', render); cIn.addEventListener('input', render);
+    racks.forEach((el, i) => el.addEventListener('click', () => {
+      if (online[i] && online.filter(Boolean).length === 1) return; // keep one site up
+      online[i] = !online[i]; render();
+    }));
+    render();
+  }
+</script>

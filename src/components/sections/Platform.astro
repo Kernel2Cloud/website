@@ -1,0 +1,112 @@
+<div class="tab-panel reveal" id="scheduling" role="tabpanel">
+      <div>
+        <h3>One pool, many sites</h3>
+        <p>The scheduler treats every rack as part of a single on-demand pool.</p>
+        <span class="lbl">How it places work</span>
+        <ul>
+          <li>Each copy lands on one server with enough free GPUs</li>
+          <li>Copies of a deployment are spread across racks</li>
+          <li>Rollouts replace one copy per pass and pause when a new version can't start</li>
+          <li>Each buyer gets whole servers; nobody shares a machine</li>
+        </ul>
+      </div>
+      <div class="tab-art dots">
+        <svg viewBox="0 0 300 220" aria-hidden="true">
+          <g class="la-b dash"><path id="s1" d="M110 100H60V52"/><path id="s2" d="M110 120H60v48"/><path id="s3" d="M190 100h50V52"/><path id="s4" d="M190 120h50v48"/></g><g class="f-b"><circle r="3.5"><animateMotion dur="2.2s" begin="0.0s" repeatCount="indefinite"><mpath href="#s1"/></animateMotion></circle><circle r="3.5"><animateMotion dur="2.2s" begin="0.4s" repeatCount="indefinite"><mpath href="#s2"/></animateMotion></circle><circle r="3.5"><animateMotion dur="2.2s" begin="0.8s" repeatCount="indefinite"><mpath href="#s3"/></animateMotion></circle><circle r="3.5"><animateMotion dur="2.2s" begin="1.2000000000000002s" repeatCount="indefinite"><mpath href="#s4"/></animateMotion></circle></g>
+          <rect class="la f-s" x="110" y="80" width="80" height="60" rx="10"/>
+          <text x="150" y="115" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#5d22e0">scheduler</text>
+          <rect class="la f-w" x="30" y="20" width="60" height="32" rx="6"/><rect class="la f-w" x="210" y="20" width="60" height="32" rx="6"/>
+          <rect class="la f-w" x="30" y="168" width="60" height="32" rx="6"/><rect class="la f-w" x="210" y="168" width="60" height="32" rx="6"/>
+          <g class="f-b"><rect x="38" y="30" width="10" height="12" rx="2"/><rect x="52" y="30" width="10" height="12" rx="2"/><rect x="218" y="30" width="10" height="12" rx="2"/><rect x="38" y="178" width="10" height="12" rx="2"/><rect x="232" y="178" width="10" height="12" rx="2"/><rect x="246" y="178" width="10" height="12" rx="2"/></g>
+          <g class="f-g"><rect x="66" y="30" width="10" height="12" rx="2"/><rect x="232" y="30" width="10" height="12" rx="2"/><rect x="246" y="30" width="10" height="12" rx="2"/><rect x="52" y="178" width="10" height="12" rx="2"/><rect x="66" y="178" width="10" height="12" rx="2"/><rect x="218" y="178" width="10" height="12" rx="2"/></g>
+        </svg>
+      </div>
+    </div>
+    <div class="tab-panel reveal" id="gpu-health" role="tabpanel">
+      <div>
+        <h3>GPU health from NVIDIA DCGM</h3>
+        <p>Every GPU reports its health continuously, and problems become alerts for our operators.</p>
+        <span class="lbl">What we do with it</span>
+        <ul>
+          <li>GPU health alerts straight from DCGM telemetry</li>
+          <li>When a server goes down, its copies are started on other servers automatically</li>
+          <li>When a site goes offline, the pool shrinks instead of failing: its copies move to other sites</li>
+          <li>All rack metrics are kept centrally for every site</li>
+        </ul>
+      </div>
+      <div class="tab-art dots">
+        <svg viewBox="0 0 300 220" aria-hidden="true">
+          <rect class="la f-w" x="20" y="24" width="260" height="172" rx="12"/>
+          <path class="la-m" d="M40 160h220M40 120h220M40 80h220" stroke-dasharray="3 5"/>
+          <path d="M40 150 70 140 100 146 130 120 160 128 190 96 220 104 250 70 260 74" class="la-b"/>
+          <circle class="f-b" cx="250" cy="70" r="4"/>
+          <rect x="190" y="38" width="76" height="22" rx="6" fill="#fff4e0" stroke="#f59f00"/>
+          <text x="228" y="53" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#b26b00">alert</text>
+          <text class="svg-t" x="40" y="54">gpu temp</text>
+        </svg>
+      </div>
+    </div>
+    <div class="tab-panel reveal" id="security" role="tabpanel">
+      <div>
+        <h3>Security for untrusted places</h3>
+        <p>A rack in a backyard has to protect itself.</p>
+        <span class="lbl">Layers</span>
+        <ul>
+          <li>Immutable operating-system image on every server</li>
+          <li>New racks register themselves and wait for an operator's approval</li>
+          <li>Whole servers per buyer, on hardened Kubernetes</li>
+          <li>Endpoints only answer requests carrying the buyer's API key</li>
+          <li>Buyers can't override GPU driver settings from their containers</li>
+        </ul>
+      </div>
+      <div class="tab-art dots">
+        <svg viewBox="0 0 300 220" aria-hidden="true">
+          <circle class="la-m" cx="150" cy="104" r="94" stroke-dasharray="3 6"/>
+          <circle class="la-b" cx="150" cy="104" r="70"/>
+          <path class="la f-s" d="M150 46 112 60v32c0 28 16 50 38 58 22-8 38-30 38-58V60z"/>
+          <rect class="la f-w" x="134" y="92" width="32" height="26" rx="4"/>
+          <path class="la" d="M140 92v-8a10 10 0 0 1 20 0v8"/>
+          <circle class="f-b" cx="150" cy="105" r="3"/>
+          <text class="svg-t" x="150" y="212" text-anchor="middle">immutable OS · approval</text>
+        </svg>
+      </div>
+    </div>
+    <div class="tab-panel reveal" id="operations" role="tabpanel">
+      <div>
+        <h3>An operations console for the fleet</h3>
+        <p>Our team runs every site from one place.</p>
+        <span class="lbl">Tools</span>
+        <ul>
+          <li>Fleet map with each rack at its site</li>
+          <li>Hardware inventory read from the servers themselves</li>
+          <li>Remote terminals on racks, without opening ports at the site</li>
+          <li>An audit log of approvals, cordons and deployments</li>
+        </ul>
+      </div>
+      <div class="tab-art dots">
+        <svg viewBox="0 0 300 220" aria-hidden="true">
+          <rect class="la f-w" x="20" y="20" width="260" height="170" rx="12"/>
+          <path class="la-m" d="M20 44h260"/>
+          <circle class="f-g" cx="36" cy="32" r="4"/><circle class="f-g" cx="50" cy="32" r="4"/><circle class="f-g" cx="64" cy="32" r="4"/>
+          <path class="la-m" d="M50 90c20-20 50-24 70-10s40 18 60 4 50-10 70 6M40 140c30 10 60 4 90-10s60-6 90 10"/>
+          <g class="f-b"><circle cx="80" cy="84" r="5"/><circle cx="170" cy="92" r="5"/><circle cx="230" cy="80" r="5"/><circle cx="120" cy="132" r="5"/><circle cx="210" cy="140" r="5"/></g>
+          <rect x="34" y="158" width="130" height="20" rx="5" class="f-g"/>
+          <text class="svg-t" x="42" y="172">$ terminal rack-03</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="stack-wrap">
+      <div class="reveal">
+        <span class="eyebrow">The stack</span>
+        <h2>From your request to the silicon</h2>
+        <p>We build and run every layer, from the server's operating system to the portal you deploy from.</p>
+      </div>
+      <div class="stack reveal">
+        <div class="layer"><b><i></i>Buyer portal &amp; API</b><span>deployments · API keys · logs · usage</span></div>
+        <div class="layer"><b><i style="--o:.85"></i>HTTPS gateway</b><span>*.apps.kernel2cloud.ai</span></div>
+        <div class="layer"><b><i style="--o:.7"></i>Scheduler</b><span>placement · rollouts · health</span></div>
+        <div class="layer"><b><i style="--o:.55"></i>Rack agent</b><span>k2c-agent on every rack</span></div>
+        <div class="layer"><b><i style="--o:.4"></i>Rack OS &amp; hardware</b><span>immutable image · 8–16 × RTX PRO 6000</span></div>
+      </div>
+    </div>

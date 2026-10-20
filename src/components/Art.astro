@@ -1,0 +1,76 @@
+---
+// Hero / tile illustrations, one per page. Animation is SMIL (packets) + CSS opacity/transform only.
+const { kind } = Astro.props as { kind: 'compute' | 'hosts' | 'platform' | 'company' | 'contact' };
+---
+{kind === 'compute' && (
+<svg class="art" viewBox="0 0 480 320" role="img" aria-label="Requests flowing from one endpoint to GPU copies on three racks">
+  <g class="la f-w"><rect x="20" y="104" width="130" height="112" rx="14"/></g>
+  <rect class="f-g" x="32" y="116" width="106" height="22" rx="7"/><circle class="f-m" cx="46" cy="127" r="4.5"/>
+  <text class="svg-t" x="58" y="131">https://chat-acme…</text>
+  <path class="la-m" d="M34 160h80M34 178h56"/><rect class="f-b" x="100" y="180" width="38" height="20" rx="6"/>
+  <text x="119" y="194" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#fff">200</text>
+  <path id="p1" class="la-b dash" d="M150 160 C 230 160, 240 70, 320 70"/>
+  <path id="p2" class="la-b dash" d="M150 160 H 320"/>
+  <path id="p3" class="la-b dash" d="M150 160 C 230 160, 240 250, 320 250"/>
+  {[['p1'],['p2'],['p3']].map(([p],k) => (
+    <circle r="4" class="f-b"><animateMotion dur="2.4s" begin={`${k * 0.5}s`} repeatCount="indefinite"><mpath href={`#${p}`} /></animateMotion></circle>
+  ))}
+  {[40, 130, 220].map((y, i) => (
+    <g transform={`translate(320 ${y + 10})`}>
+      <rect class="la f-w" width="140" height="60" rx="10"/>
+      <g class="f-g">{Array.from({ length: 8 }).map((_, j) => <rect x={12 + j * 15} y="14" width="10" height="14" rx="2"/>)}</g>
+      <g class="f-b">{Array.from({ length: 4 - i }).map((_, j) => <rect class="blink-cell" style={`animation-delay:${j * .35}s`} x={12 + j * 15} y="14" width="10" height="14" rx="2"/>)}</g>
+      <circle class="f-m" cx="14" cy="46" r="3"/><text class="svg-t" x="24" y="49">rack {i + 1}</text>
+    </g>
+  ))}
+</svg>
+)}
+{kind === 'hosts' && (
+<svg class="art" viewBox="0 0 480 320" role="img" aria-label="A rack in a backyard beside a house, linked to the cloud">
+  <path class="la-m" d="M10 270h460"/>
+  <g transform="translate(40 120)"><path class="la f-w" d="M0 64 90 0l90 64v86H0z"/><rect class="la f-s" x="70" y="96" width="40" height="54" rx="2"/><rect class="la f-w" x="22" y="84" width="32" height="30" rx="3"/><rect class="la f-w" x="126" y="84" width="32" height="30" rx="3"/></g>
+  <circle class="la f-w" cx="258" cy="222" r="28"/><path class="la" d="M258 250v20"/>
+  <g transform="translate(320 168)">
+    <path class="la f-w" d="M0 34 50 8l50 26-50 26z"/><path class="la f-w" d="M0 34v54l50 26V60z"/><path class="la f-s" d="M100 34v54l-50 26V60z"/>
+    <path class="la-b" d="M58 74l34-17M58 86l34-17M58 98l34-17"/><circle class="f-m" cx="14" cy="60" r="3.5"/>
+    <path class="la f-w" d="M0 12 50-14l50 26-50 26z" transform="translate(0 6)"/>
+  </g>
+  <g class="la-b"><path class="wave w1" d="M352 150a46 46 0 0 1 56 0"/><path class="wave w2" d="M338 132a68 68 0 0 1 84 0"/><path class="wave w3" d="M324 114a90 90 0 0 1 112 0"/></g>
+  <circle class="f-b" cx="380" cy="160" r="4"/>
+  <g transform="translate(300 24)"><path class="la f-s" d="M30 46a22 22 0 0 1 4-44 30 30 0 0 1 58 3 20 20 0 0 1 12 41z"/><text x="62" y="32" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-weight="600" font-size="12" fill="#5d22e0">one pool</text></g>
+</svg>
+)}
+{kind === 'platform' && (
+<svg class="art" viewBox="0 0 480 510" role="img" aria-label="The stack: portal, gateway, scheduler, rack agent and rack hardware">
+  {[
+    ['Buyer portal & API', 1],['HTTPS gateway', .85],['Scheduler', .7],['Rack agent', .55],['Rack OS & hardware', .4],
+  ].map(([t, o], i) => [t, o, i] as const).reverse().map(([t, o, i]) => (
+    <g transform={`translate(0 ${i * 86})`}><g class="slab" style={`animation-delay:${i * .25}s`}>
+      <path class="la f-w" d="M60 78 240 18l180 60-180 60z"/>
+      <path class="la" style={`fill:#7b3cff;fill-opacity:${(+o) * .18}`} d="M60 78 240 18l180 60-180 60z"/>
+      <path class="la f-w" d="M60 78v14l180 60v-14z"/><path class="la f-s" d="M420 78v14l-180 60v-14z"/>
+      <text class="svg-h" x="240" y="96" text-anchor="middle" font-size="13">{t}</text>
+    </g></g>
+  ))}
+</svg>
+)}
+{kind === 'company' && (
+<svg class="art" viewBox="0 0 480 320" role="img" aria-label="Two offices, Milpitas and Bangalore, connected">
+  <circle class="la-m" cx="240" cy="165" r="140" stroke-dasharray="2 6"/>
+  <circle class="la-m" cx="240" cy="165" r="96" stroke-dasharray="2 6"/>
+  <ellipse class="la-m" cx="240" cy="165" rx="140" ry="44" stroke-dasharray="2 6"/><path class="la-m" d="M240 25v280" stroke-dasharray="2 6"/>
+  <path id="arc" class="la-b dash" d="M110 118 C 200 30, 330 30, 372 190"/>
+  <circle r="4.5" class="f-b"><animateMotion dur="3s" repeatCount="indefinite"><mpath href="#arc"/></animateMotion></circle>
+  <g class="node"><circle class="ring" cx="110" cy="118" r="9"/><circle class="f-b" cx="110" cy="118" r="6"/></g>
+  <g class="node"><circle class="ring" cx="372" cy="190" r="9"/><circle class="f-b" cx="372" cy="190" r="6"/></g>
+  <rect class="la f-w" x="44" y="132" width="130" height="38" rx="9"/><text class="svg-h" x="58" y="156" font-size="13">Milpitas, CA</text>
+  <rect class="la f-w" x="318" y="206" width="130" height="38" rx="9"/><text class="svg-h" x="332" y="230" font-size="13">Bangalore</text>
+</svg>
+)}
+{kind === 'contact' && (
+<svg class="art" viewBox="0 0 480 320" role="img" aria-label="A message travelling to the Kernel2Cloud team">
+  <circle class="la-b" cx="240" cy="160" r="130" stroke-dasharray="2 8"/><circle class="la-m" cx="240" cy="160" r="92"/><circle class="la-b" cx="240" cy="160" r="54" stroke-dasharray="40 14"/>
+  <g class="slab"><rect class="la f-w" x="170" y="118" width="140" height="92" rx="12"/><path class="la" d="m174 124 66 52 66-52"/><circle class="f-m" cx="296" cy="124" r="6"/></g>
+  <circle class="f-b" cx="240" cy="30" r="7"/><circle class="f-m" cx="370" cy="160" r="6"/><circle class="f-b" cx="150" cy="215" r="5"/>
+</svg>
+)}

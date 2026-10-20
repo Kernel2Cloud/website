@@ -1,0 +1,69 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/sections/Hero.astro';
+import Ticker from '../components/sections/Ticker.astro';
+import Audiences from '../components/sections/Audiences.astro';
+import HomeTiles from '../components/HomeTiles.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { SITE_NAME, SITE_URL, SITE_DESCRIPTION, CONTACT_EMAIL } from '../consts';
+
+const jsonLd = [
+  {
+    '@type': 'Organization',
+    '@id': `${SITE_URL}/#org`,
+    name: 'Kernel2Cloud Inc',
+    alternateName: SITE_NAME,
+    url: SITE_URL,
+    logo: `${SITE_URL}/favicon.svg`,
+    description: SITE_DESCRIPTION,
+    email: CONTACT_EMAIL,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: '372 Fairview Way',
+      addressLocality: 'Milpitas',
+      addressRegion: 'CA',
+      postalCode: '95035',
+      addressCountry: 'US',
+    },
+  },
+  {
+    '@type': 'WebSite',
+    '@id': `${SITE_URL}/#website`,
+    url: SITE_URL,
+    name: SITE_NAME,
+    publisher: { '@id': `${SITE_URL}/#org` },
+  },
+];
+---
+<Base
+  title="Kernel2Cloud — Distributed GPU Cloud for AI Inference"
+  description={SITE_DESCRIPTION}
+  jsonLd={jsonLd}
+>
+  <Hero />
+  <Ticker />
+  <Audiences />
+  <section class="alt">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="eyebrow">Explore</span>
+        <h2>Everything about the <span class="accent">pool</span></h2>
+        <p>Rent GPUs, host a rack, see how the platform runs, or meet the team.</p>
+      </div>
+      <HomeTiles />
+    </div>
+  </section>
+  <section class="band dark">
+    <div class="wrap">
+      <div><strong data-count="16">16</strong><span>GPUs per copy, max</span></div>
+      <div><strong data-count="96" data-suffix=" GB">96 GB</strong><span>Memory per GPU</span></div>
+      <div><strong data-count="1536" data-suffix=" GB">1,536 GB</strong><span>GPU memory per server, max</span></div>
+      <div><strong>0</strong><span>Servers shared between buyers</span></div>
+    </div>
+  </section>
+  <CtaBand />
+  <script>
+    import { initGlobe } from '../scripts/globe.js';
+    initGlobe();
+  </script>
+</Base>

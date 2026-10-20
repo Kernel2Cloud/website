@@ -1,0 +1,29 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Contact from '../components/sections/Contact.astro';
+import { faq } from '../data/faq';
+import { breadcrumb } from '../lib/seo';
+
+const jsonLd = [
+  breadcrumb(['Contact', '/contact/']),
+  { '@type': 'ContactPage', name: 'Contact Kernel2Cloud', url: 'https://www.kernel2cloud.ai/contact/' },
+  { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) },
+];
+---
+<Base
+  title="Contact & FAQ — GPU Compute or Hosting a Rack | Kernel2Cloud"
+  description="Tell Kernel2Cloud about your workload or your site. Offices in Milpitas, CA and Bangalore. Answers on GPUs, model size, uptime, sharing and hosting."
+  current="contact"
+  jsonLd={jsonLd}
+>
+  <PageHero eyebrow="Contact" crumb="Contact" art="contact"
+    title='Need GPUs, or have space <span class="accent grad">for a rack?</span>'
+    lead="Tell us about your workload or your site. Our team answers both.">
+    <Fragment slot="actions">
+      <a href="mailto:connect@kernel2cloud.ai?subject=GPU%20compute&body=Model(s)%3A%0AGPUs%20per%20copy%3A%0ANumber%20of%20copies%3A%0AStart%20date%3A%0A" class="btn">Request GPU compute <span class="arrow">→</span></a>
+      <a href="mailto:connect@kernel2cloud.ai?subject=Hosting%20a%20rack" class="btn btn-line">Apply to host a rack</a>
+    </Fragment>
+  </PageHero>
+  <section class="sec"><div class="wrap"><Contact /></div></section>
+</Base>

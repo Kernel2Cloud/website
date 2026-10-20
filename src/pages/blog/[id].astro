@@ -1,0 +1,74 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+import { SITE_NAME, SITE_URL } from '../../consts';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => import.meta.env.DEV || !data.draft);
+  return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const d = post.data;
+const url = `${SITE_URL}/blog/${post.id}/`;
+const fmt = (x: Date) => x.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+const image = d.image ?? '/og-default.png';
+
+const jsonLd = [
+  {
+    '@type': 'BlogPosting',
+    '@id': `${url}#post`,
+    mainEntityOfPage: url,
+    headline: d.title,
+    description: d.description,
+    image: new URL(image, SITE_URL).href,
+    datePublished: d.pubDate.toISOString(),
+    dateModified: (d.updatedDate ?? d.pubDate).toISOString(),
+    keywords: d.tags.join(', ') || undefined,
+    author: { '@type': 'Organization', name: d.author },
+    publisher: { '@id': `${SITE_URL}/#org` },
+  },
+  {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${SITE_URL}/blog/` },
+      { '@type': 'ListItem', position: 3, name: d.title, item: url },
+    ],
+  },
+];
+---
+<Base
+  title={`${d.title} — ${SITE_NAME}`}
+  description={d.description}
+  type="article"
+  image={image}
+  imageAlt={d.imageAlt ?? d.title}
+  publishedTime={d.pubDate}
+  modifiedTime={d.updatedDate}
+  tags={d.tags}
+  current="blog"
+  noindex={d.draft}
+  jsonLd={jsonLd}
+>
+  <article class="article">
+    <div class="article-wrap">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/blog/">Blog</a></nav>
+      <h1>{d.title}</h1>
+      <p class="lead">{d.description}</p>
+      <div class="post-meta">
+        <span>{d.author}</span>
+        <time datetime={d.pubDate.toISOString()}>{fmt(d.pubDate)}</time>
+        {d.updatedDate && <span>Updated <time datetime={d.updatedDate.toISOString()}>{fmt(d.updatedDate)}</time></span>}
+        {d.draft && <span>DRAFT — not published</span>}
+      </div>
+      <div class="prose"><Content /></div>
+      {d.tags.length > 0 && <div class="tags">{d.tags.map((t) => <span class="tag">{t}</span>)}</div>}
+      <div class="callout article-cta">
+        <p><b>Need GPUs, or have space for a rack?</b> Tell us about your workload or your site.</p>
+        <a href="/#contact" class="btn">Get in touch <span class="arrow">→</span></a>
+      </div>
+    </div>
+  </article>
+</Base>

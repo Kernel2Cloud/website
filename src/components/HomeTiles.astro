@@ -1,0 +1,18 @@
+---
+const rows = [
+  { href: '/compute/', t: 'Rent GPU compute', p: 'Ship a container, get one HTTPS endpoint. Copies spread across racks, your own servers.' },
+  { href: '/host-a-rack/', t: 'Host a rack', p: 'Give a rack a home in your backyard, garage or outbuilding. We run it remotely.' },
+  { href: '/platform/', t: 'Built for untrusted places', p: 'Scheduler, GPU health, security and an operations console for the fleet.' },
+  { href: '/company/', t: 'Compute where people live', p: 'The team and the idea: many small sites instead of a few giant ones.' },
+] as const;
+---
+<div class="index reveal" id="index">
+  {rows.map((x, i) => (
+    <a href={x.href} class="index-row">
+      <span class="n">0{i + 1}</span>
+      <h3>{x.t}</h3>
+      <p>{x.p}</p>
+      <span class="go" aria-hidden="true">→</span>
+    </a>
+  ))}
+</div>

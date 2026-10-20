@@ -1,0 +1,23 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Company from '../components/sections/Company.astro';
+import { breadcrumb } from '../lib/seo';
+---
+<Base
+  title="About Kernel2Cloud — Compute That Lives Where People Do"
+  description="Big data centers wait years for power. Kernel2Cloud puts GPUs into many small places that already have it. Meet the team and our values."
+  current="company"
+  jsonLd={[breadcrumb(['Company', '/company/'])]}
+>
+  <PageHero eyebrow="Company" crumb="Company" art="company"
+    title='Compute that lives <span class="accent grad">where people do</span>'
+    lead="Big data centers wait years for power. We put GPUs into many small places that already have it.">
+    <Fragment slot="actions">
+      <a href="/contact/" class="btn">Get in touch <span class="arrow">→</span></a>
+    </Fragment>
+  </PageHero>
+  <section class="sec"><div class="wrap"><Company /></div></section>
+  <CtaBand />
+</Base>

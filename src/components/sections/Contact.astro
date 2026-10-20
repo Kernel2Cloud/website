@@ -1,0 +1,32 @@
+---
+import { faq } from '../../data/faq';
+---
+    <div class="grid offices">
+      <div class="card reveal"><span class="lbl">Headquarters</span><h3>Kernel2Cloud Inc</h3><address>372 Fairview Way<br>Milpitas, CA 95035<br>United States</address></div>
+      <div class="card reveal"><span class="lbl">Development center</span><h3>Kernel2Cloud Limited</h3><address>480/17, 45th Cross<br>Jayanagar 8th Block<br>Bangalore 560082, India</address></div>
+      <div class="card reveal"><span class="lbl">Get in touch</span><h3>Reach us</h3><address><a href="mailto:connect@kernel2cloud.ai">connect@kernel2cloud.ai</a><br><a href="https://www.kernel2cloud.ai">www.kernel2cloud.ai</a></address></div>
+    </div>
+
+    <div class="faq-wrap">
+      <div class="reveal">
+        <span class="eyebrow">Get started</span>
+        <h2>From image to endpoint</h2>
+        <ol class="start-steps">
+          <li><h3>Talk to us</h3><p>Share your model, GPUs per copy and how many copies you need.</p></li>
+          <li><h3>Get an account</h3><p>Sign in to the portal, create API keys and add your registry login if your image is private.</p></li>
+          <li><h3>Deploy</h3><p>Create a deployment from the portal or the API.</p></li>
+          <li><h3>Call your endpoint</h3><p>Send requests to your HTTPS hostname with your API key.</p></li>
+        </ol>
+      </div>
+      <div class="reveal">
+        <span class="eyebrow">FAQ</span>
+        <div class="faq-list">
+          {faq.map((f, i) => (
+            <details open={i === 0}>
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+          ))}
+        </div>
+      </div>
+    </div>

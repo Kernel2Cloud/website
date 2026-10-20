@@ -1,0 +1,93 @@
+<div class="buyer-wrap">
+      <div class="code reveal">
+        <div class="code-tabs" role="tablist" aria-label="Code samples">
+          <button type="button" role="tab" id="tab-json" aria-controls="panel-json" aria-selected="true" class="on">deployment.json</button>
+          <button type="button" role="tab" id="tab-sh" aria-controls="panel-sh" aria-selected="false" tabindex="-1">call.sh</button>
+        </div>
+        <div class="code-panels">
+<pre is:raw id="panel-json" role="tabpanel" aria-labelledby="tab-json"><span class="c">// one copy = one server's worth of GPUs, or less</span>
+{
+  <span class="k">"name"</span>: <span class="s">"chat"</span>,
+  <span class="k">"image"</span>: <span class="s">"vllm/vllm-openai:latest"</span>,
+  <span class="k">"args"</span>: [<span class="s">"--model"</span>, <span class="s">"Qwen/Qwen2.5-72B-Instruct"</span>,
+           <span class="s">"--tensor-parallel-size"</span>, <span class="s">"2"</span>],
+  <span class="k">"port"</span>: <span class="n">8000</span>,
+  <span class="k">"gpus_per_replica"</span>: <span class="n">2</span>,
+  <span class="k">"replicas"</span>: <span class="n">3</span>,
+  <span class="k">"health_path"</span>: <span class="s">"/v1/models"</span>
+}</pre>
+<pre is:raw id="panel-sh" role="tabpanel" aria-labelledby="tab-sh" hidden><span class="c"># then call it with your API key</span>
+curl https://chat-acme.apps.kernel2cloud.ai/v1/models \
+  -H <span class="s">"Authorization: Bearer $K2C_API_KEY"</span></pre>
+        </div>
+      </div>
+      <div class="grid g2">
+        <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 4.4 3.4 8.4 8 10 4.6-1.6 8-5.6 8-10V6z"/><path d="M9 12h6M12 9v6"/></svg></div><h3>HTTPS with API keys</h3><p>Every deployment gets its own hostname. Requests need one of your API keys.</p></div>
+        <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><rect x="8.5" y="14" width="7" height="7" rx="1.5"/></svg></div><h3>Copies across racks</h3><p>Traffic is load-balanced over all ready copies. If a rack goes down, the others keep answering.</p></div>
+        <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 12h4l3-7 3 14 3-7h3"/></svg></div><h3>Health checks</h3><p>Set a health path and a startup window — loading a big model can take minutes, and that's fine.</p></div>
+        <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg></div><h3>Staged rollouts</h3><p>New versions replace copies one at a time and pause if the new version can't start.</p></div>
+        <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h13"/></svg></div><h3>Your logs</h3><p>Read your containers' logs in the portal. You only ever see your own.</p></div>
+        <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><h3>GPU usage, hourly</h3><p>GPU-hours per deployment and GPU model, broken down by hour.</p></div>
+      </div>
+    </div>
+
+    <div class="spec reveal">
+      <div class="spec-art dots">
+        <svg viewBox="0 0 360 330" aria-label="Isometric rack: one 1U control plane above one GPU server holding 8 to 16 GPUs">
+          <ellipse cx="180" cy="292" rx="130" ry="22" fill="#ece6fb"/>
+          <path class="la f-w" d="M60 130 180 70l120 60-120 60z"/>
+          <path class="la f-w" d="M60 130v110l120 60V190z"/>
+          <path class="la f-s" d="M300 130v110l-120 60V190z"/>
+          <g class="la-b"><path d="M192 206l96-48M192 222l96-48M192 238l96-48M192 254l96-48M192 270l96-48"/></g>
+          <g class="la-m"><path d="M80 158v70M100 168v70M120 178v70M140 188v70M160 198v70"/></g>
+          <path class="la f-w" d="M60 104 180 44l120 60-120 60z"/>
+          <path class="la f-w" d="M60 104v16l120 60v-16z"/>
+          <path class="la f-s" d="M300 104v16l-120 60v-16z"/>
+          <circle class="f-m" cx="200" cy="168" r="3"/>
+          <text class="svg-t" x="300" y="26" text-anchor="middle">1U · control plane</text>
+          <path class="la-m" d="M300 32 262 84"/>
+          <text class="svg-t" x="180" y="324" text-anchor="middle">GPU server · 8–16 × RTX PRO 6000</text>
+        </svg>
+      </div>
+      <div class="spec-body">
+        <span class="eyebrow">The hardware</span>
+        <h3>NVIDIA RTX PRO 6000 Blackwell</h3>
+        <p>Every rack holds one GPU server with 8 to 16 of them. Each copy of your model runs on a single server.</p>
+        <dl>
+          <div><dt>GPUs per server</dt><dd>8–16</dd></div>
+          <div><dt>Memory per GPU</dt><dd>96 GB</dd></div>
+          <div><dt>GPU memory per server</dt><dd>768 GB – 1.5 TB</dd></div>
+          <div><dt>Interconnect</dt><dd>PCIe</dd></div>
+        </dl>
+        <p class="note">Largest model per copy: what fits in one server — up to 1.5 TB of GPU memory (more with FP4). Models that span several servers aren't offered yet.</p>
+      </div>
+    </div>
+
+    <h3 class="sub-h reveal">What teams run on it</h3>
+    <div class="grid g3">
+      <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg></div><h3>LLM inference</h3><p>Chat and completion APIs with vLLM, SGLang, TGI or your own server.</p></div>
+      <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-8 9"/></svg></div><h3>Image &amp; video generation</h3><p>Diffusion and video models behind an HTTP API.</p></div>
+      <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h8M6 8v8M18 8v8M8 18h8"/></svg></div><h3>Embeddings &amp; reranking</h3><p>The retrieval side of RAG, scaled out as copies.</p></div>
+      <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3v18M8 8v8M4 10v4M16 6v12M20 10v4"/></svg></div><h3>Speech</h3><p>Transcription and text-to-speech models.</p></div>
+      <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></div><h3>Vision</h3><p>Detection, segmentation and multimodal models.</p></div>
+      <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/></svg></div><h3>Anything in a container</h3><p>If it serves HTTP on a port, it runs. Private registries supported.</p></div>
+    </div>
+
+<script>
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>('.code-tabs [role=tab]')];
+  const select = (t: HTMLButtonElement) => {
+    tabs.forEach((x) => {
+      const on = x === t;
+      x.classList.toggle('on', on); x.setAttribute('aria-selected', String(on)); x.tabIndex = on ? 0 : -1;
+      document.getElementById(x.getAttribute('aria-controls')!)!.hidden = !on;
+    });
+  };
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => select(t));
+    t.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      const n = tabs[(i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
+      select(n); n.focus();
+    });
+  });
+</script>

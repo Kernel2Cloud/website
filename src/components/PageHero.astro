@@ -1,0 +1,16 @@
+---
+import Art from './Art.astro';
+const { eyebrow, title, lead, art, crumb } = Astro.props as { eyebrow: string; title: string; lead: string; art: 'compute' | 'hosts' | 'platform' | 'company' | 'contact'; crumb: string };
+---
+<section class="page-hero">
+  <div class="wrap ph-grid">
+    <div class="ph-text">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <span aria-current="page">{crumb}</span></nav>
+      <span class="eyebrow">{eyebrow}</span>
+      <h1 set:html={title} />
+      <p class="lead">{lead}</p>
+      <div class="hero-cta" style="justify-content:flex-start"><slot name="actions" /></div>
+    </div>
+    <div class="ph-art"><Art kind={art} /></div>
+  </div>
+</section>

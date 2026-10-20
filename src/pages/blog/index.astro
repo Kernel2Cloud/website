@@ -1,0 +1,53 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { SITE_NAME, SITE_URL } from '../../consts';
+
+const posts = (await getCollection('blog', ({ data }) => import.meta.env.DEV || !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const fmt = (d: Date) => d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+
+const description = 'Notes from the Kernel2Cloud team on running GPU compute from many small sites: deploying models, hardware, operations and hosting.';
+const jsonLd = [
+  {
+    '@type': 'Blog',
+    '@id': `${SITE_URL}/blog/#blog`,
+    url: `${SITE_URL}/blog/`,
+    name: `${SITE_NAME} blog`,
+    description,
+    publisher: { '@id': `${SITE_URL}/#org` },
+  },
+];
+---
+<Base title="Blog — Kernel2Cloud" description={description} current="blog" jsonLd={jsonLd}>
+  <section class="blog-head">
+    <div class="wrap">
+      <span class="eyebrow">Blog</span>
+      <h1>Notes from the <span class="accent">racks</span></h1>
+      <p>Running GPU compute from many small sites: deploying models, hardware, operations and hosting.</p>
+    </div>
+  </section>
+  <section class="posts">
+    <div class="wrap">
+      {posts.length === 0 ? (
+        <p class="empty">First posts coming soon.</p>
+      ) : (
+        <div class="grid g3">
+          {posts.map((p) => (
+            <article class="card post-card">
+              <div class="post-meta">
+                <time datetime={p.data.pubDate.toISOString()}>{fmt(p.data.pubDate)}</time>
+                {p.data.draft && <span>DRAFT</span>}
+              </div>
+              <h2><a href={`/blog/${p.id}/`}>{p.data.title}</a></h2>
+              <div>
+                <p>{p.data.description}</p>
+                {p.data.tags.length > 0 && <div class="tags">{p.data.tags.map((t) => <span class="tag">{t}</span>)}</div>}
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+</Base>

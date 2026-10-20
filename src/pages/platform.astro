@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Platform from '../components/sections/Platform.astro';
+import { breadcrumb } from '../lib/seo';
+---
+<Base
+  title="Platform — Scheduling, GPU Health & Security | Kernel2Cloud"
+  description="How Kernel2Cloud runs GPUs outside data centers: one scheduler across racks, DCGM health alerts, immutable images, approval-gated racks and a fleet console."
+  current="platform"
+  jsonLd={[breadcrumb(['Platform', '/platform/'])]}
+>
+  <PageHero eyebrow="Platform" crumb="Platform" art="platform"
+    title='Built to run GPUs in places that <span class="accent grad">aren&rsquo;t data centers</span>'
+    lead="Racks sit on residential power and internet, in places we don't physically control. The platform is designed around that.">
+    <Fragment slot="actions">
+      <a href="#scheduling" class="btn">Explore the platform <span class="arrow">→</span></a>
+      <a href="/contact/" class="btn btn-line">Talk to us</a>
+    </Fragment>
+  </PageHero>
+  <section class="sec alt">
+    <div class="wrap">
+      <Platform />
+    </div>
+  </section>
+  <CtaBand />
+</Base>
