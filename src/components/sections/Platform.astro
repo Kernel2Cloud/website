@@ -7,7 +7,7 @@
           <li>Each copy lands on one server with enough free GPUs</li>
           <li>Copies of a deployment are spread across racks</li>
           <li>Rollouts replace one copy per pass and pause when a new version can't start</li>
-          <li>Each buyer gets whole servers; nobody shares a machine</li>
+          <li>Each copy gets whole GPUs; a GPU is never shared</li>
         </ul>
       </div>
       <div class="tab-art dots">
@@ -54,7 +54,7 @@
         <ul>
           <li>Immutable operating-system image on every server</li>
           <li>New racks register themselves and wait for an operator's approval</li>
-          <li>Whole servers per buyer, on hardened Kubernetes</li>
+          <li>Whole GPUs per copy, in separate containers on hardened Kubernetes</li>
           <li>Endpoints only answer requests carrying the buyer's API key</li>
           <li>Buyers can't override GPU driver settings from their containers</li>
         </ul>

@@ -2,6 +2,7 @@
 title: Engineering one GPU pool out of many small sites
 description: Why one copy runs on one server, how PCIe shapes tensor parallelism, what a WAN cannot carry, and how replicas across sites become availability.
 pubDate: 2026-10-20
+updatedDate: 2026-11-11
 author: Kernel2Cloud team
 tags: [gpu-cloud, inference, architecture]
 draft: false
@@ -93,7 +94,7 @@ The request path is short. A deployment gets a hostname, `<deployment>-<buyer>.a
 
 ### Placement is anti-affinity
 
-The scheduler places each copy on a server with enough free GPUs and spreads the copies of one deployment across racks. This is the same anti-affinity constraint Kubernetes exposes as topology spread, with the rack as the failure domain. We give each buyer whole servers, so there is no GPU time-slicing between tenants, no MIG partitioning to reason about, and no noisy-neighbour term in latency.
+The scheduler places each copy on a server with enough free GPUs and spreads the copies of one deployment across racks. This is the same anti-affinity constraint Kubernetes exposes as topology spread, with the rack as the failure domain. Each copy gets whole GPUs, so there is no GPU time-slicing between tenants and no MIG partitioning to reason about. Copies of different buyers can share a server; each gets a share of its CPU and memory in proportion to its GPUs, though the site's internet line is shared.
 
 ### What replicas buy in availability
 
@@ -113,7 +114,7 @@ Once you have two or three copies, the `A_shared` term dominates. Replica count 
 
 ### Rolling out without spare capacity
 
-Because every copy owns a whole server, a rollout cannot surge: there may be no free server to start the new version on. The scheduler therefore replaces one copy per pass and pauses if the new version cannot start. Capacity dips by one copy during a rollout, which is why a deployment with a single copy has no zero-downtime update and why two or more copies matter operationally, not just for availability.
+Because every copy holds its GPUs, a rollout cannot surge: there may be no free GPUs to start the new version on. The scheduler therefore replaces one copy per pass and pauses if the new version cannot start. Capacity dips by one copy during a rollout, which is why a deployment with a single copy has no zero-downtime update and why two or more copies matter operationally, not just for availability.
 
 ## What the control plane has to assume
 
@@ -125,7 +126,7 @@ The hardware sits on residential power and internet in places we do not physical
 
 **Admission by approval.** A new rack registers itself and waits. Nothing is scheduled onto it until an operator approves it, so a rack that merely powers on cannot join the pool.
 
-**Isolation by node.** Buyers get whole servers on hardened Kubernetes, containers cannot override GPU driver settings, and each buyer sees only their own deployments and logs.
+**Isolation by GPU.** Each copy gets whole GPUs that nothing else uses; buyers can share a server, never a GPU. Copies run in separate containers on hardened Kubernetes, with no network path between buyers, containers cannot override GPU driver settings, and each buyer sees only their own deployments and logs. (Until November 2026 each buyer got whole servers.)
 
 **Telemetry that survives the site.** DCGM exports per-GPU health and temperature; metrics are kept centrally for every rack, and alert rules turn thermal and GPU faults into alerts for our operators. When a server goes down, the scheduler starts its copies on other servers, and when a whole site drops off, the pool shrinks instead of failing. Usage is metered per buyer, deployment and GPU model, in GPU-time per hour, written on each agent sync so the figure the buyer sees comes from the same source as the scheduler's.
 
